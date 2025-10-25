@@ -14,8 +14,12 @@
 #define NUMBER_EEPROM_OFFSET 0
 #endif // NUMBER_EEPROM_OFFSET
 
+#define NUMBER_CHANGED 1
+#define NUMBER_WRITTEN 2
+
 #include <Arduino.h>
 #include <inttypes.h>
+#include <EEPROM.h>
 
 template<typename _Tp>
 struct is_signed
@@ -34,16 +38,14 @@ private:
   uint8_t flags;
   uint16_t check_time;
   uint16_t scroll_write_time;
-  void (&update_callback)(T number, bool final);
 public:
   uint8_t pins[2];
   T number;
   T limit;
   
-  NumberButtons (uint8_t add_pin, uint8_t sub_pin, uint8_t eeprom_address,
-                 T sym_limit, void (&number_update_callback)(T number, bool final))
-  : pins{add_pin, sub_pin}, eeprom{eeprom_address}, limit{sym_limit},
-    update_callback{number_update_callback}, flags{0}, check_time{0}, number{0}
+  NumberButtons (uint8_t add_pin, uint8_t sub_pin, uint8_t eeprom_address, T sym_limit)
+  : pins{add_pin, sub_pin}, eeprom{eeprom_address}, limit{sym_limit}
+  , flags{0}, check_time{0}, number{0}
   {
     for (uint8_t i = 0; i < sizeof(T); ++i) {
       number |= (T)EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom) << (i * 8);
@@ -53,9 +55,9 @@ public:
   };
   
   
-  void tick (uint16_t time) {
+  uint8_t tick (uint16_t time) {
     if (time - check_time >= 0x8000) {
-      return;
+      return 0;
     }
     check_time = time + NUMBER_POLL_INTERVAL;
     bool add = !digitalRead(pins[0]);
@@ -65,27 +67,26 @@ public:
         flags &= ~NumberButtons<T>::SCROLLING;
       }
       if ((flags & NumberButtons<T>::WRITE) == 0 || time - scroll_write_time >= 0x8000)
-        return;
+        return 0;
       
-      update_callback(number, true);
       for (uint8_t i = 0; i < sizeof(T); ++i) {
         EEPROM.update(NUMBER_EEPROM_OFFSET + eeprom, number >> (i * 8));
       }
       flags &= ~NumberButtons<T>::WRITE;
-      return;
+      return NUMBER_WRITTEN;
     }
     if ((flags & NumberButtons<T>::SCROLLING) && time - scroll_write_time >= 0x8000)
-      return;
+      return 0;
     number += (add) ? 1 : -1;
     if (number > limit)
       number = (is_signed<T>::value) ? -limit : 0;
     if (is_signed<T>::value && number < -limit)
       number = limit;
-    update_callback(number, false);
     if ((flags & NumberButtons<T>::SCROLLING) == 0) {
       scroll_write_time = time + NUMBER_SCROLL_START;
     }
     flags |= NumberButtons<T>::SCROLLING | NumberButtons<T>::WRITE;
+    return NUMBER_CHANGED;
   }
   inline void tick () {
     tick(millis());

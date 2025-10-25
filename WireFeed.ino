@@ -1,5 +1,4 @@
 // Кнопка
-#include <EEPROM.h>
 #include "NumberButtons.hpp"
 #include "InputAverager.hpp"
 #include "stepmotor.h"
@@ -45,31 +44,14 @@
 #define DISPLAYS 3
 #define DISPLAY_START_PIN A0
 
-void c1_update_callback(int16_t number, bool final);
-
 InputAverager in_speed(5);
 InputAverager in_time(4);
-NumberButtons<int16_t> c1_off(COEF_ADD_PIN, COEF_SUB_PIN, EEPROM_C1_ADDRESS, 999, c1_update_callback);
+NumberButtons<int16_t> c1_off(COEF_ADD_PIN, COEF_SUB_PIN, EEPROM_C1_ADDRESS, 999);
 uint8_t lasttimes[ACCEL_TIME + 1];
 
 // 3927 = 31416/8; 3 - 60/20
 uint32_t motor_coef(uint8_t diameter, uint8_t reductor_multiplier, uint16_t c) {
   return ((uint32_t)(F_CPU*8/MICROSTEP/PRESCALER) * 3 * 3927 * diameter) / (reductor_multiplier * c);
-}
-
-void c1_update_callback(int16_t number, bool final) {
-  if (final)
-    return;
-  disp_print(C1_DISP, number);
-  uint32_t constant = motor_coef(D1, U1, C1 + number);
-  if (accelerate(0) == 0 && target_speed != 0) { // If we going to recalculate speed anyway, don't waste cycles on it and don't interrupt acceleration
-    uint16_t interval = speed(constant, target_speed);
-    cli();
-    motor_intervals[0] = interval;
-  }
-  cli();
-  motor_constants[0] = constant;
-  sei();
 }
 
 void setup() {
@@ -100,6 +82,22 @@ void loop() {
     accelerate(ACCELERATION_INTERVAL);
     lasttimes[ACCEL_TIME] = time + ACCELERATION_INTERVAL;
   }
-  c1_off.tick(time);
+  switch (c1_off.tick(time)) {
+    case NUMBER_CHANGED:
+      disp_print(C1_DISP, c1_off.number);
+      break;
+    case NUMBER_WRITTEN: {
+      uint32_t constant = motor_coef(D1, U1, C1 + c1_off.number);
+      if (accelerate(0) == 0 && target_speed != 0) { // If we going to recalculate speed anyway, don't waste cycles on it and don't interrupt acceleration
+        uint16_t interval = speed(constant, target_speed);
+        cli();
+        motor_intervals[0] = interval;
+      }
+      cli();
+      motor_constants[0] = constant;
+      sei();
+      break;
+    }
+  }
 }
 
