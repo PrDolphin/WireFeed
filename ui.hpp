@@ -1,10 +1,7 @@
 #ifndef UI_HPP
 #define UI_HPP
 
-#include <GyverTM1637.h>
-
-extern GyverTM1637 disp;
-void ui_setup();
-uint16_t get_speed();
+void disp_print(uint8_t display, int16_t value);
+void ui_setup(uint8_t n_displays, uint8_t startpin);
 
 #endif // UI
