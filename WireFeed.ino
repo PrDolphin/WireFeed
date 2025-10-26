@@ -44,8 +44,8 @@
 #define DISPLAYS 3
 #define DISPLAY_START_PIN A0
 
-InputAverager in_speed(5);
-InputAverager in_time(4);
+InputAverager in_speed(A5);
+InputAverager in_time(A4);
 NumberButtons<int16_t> c1_off(COEF_ADD_PIN, COEF_SUB_PIN, EEPROM_C1_ADDRESS, 999);
 uint8_t lasttimes[ACCEL_TIME + 1];
 
@@ -72,9 +72,9 @@ void loop() {
   uint16_t time = millis();
   if ((uint8_t)(time & 0xFF) - lasttimes[SPEED_TIME] < 0x80) {
     bool system_enabled = !digitalRead(MOTORS_SWITCH_PIN);
-    uint16_t speed = 200;
-    //uint16_t speed = map(in_speed.get(), 0, 1023, 10, 500);
-    //disp_print(SPEED_DISP, speed);
+    //uint16_t speed = 200;
+    uint16_t speed = map(in_speed.get(), 0, 1023, 10, 500);
+    disp_print(SPEED_DISP, speed);
     target_speed = (system_enabled) ? speed : 0;
     lasttimes[SPEED_TIME] = time + SPEED_POLL_INTERVAL;
   }

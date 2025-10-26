@@ -8,7 +8,7 @@ uint16_t InputAverager::get() {
     avg[i] = avg[i + 1];
     sum += avg[i];
   }
-  avg[ANALOG_INPUT_AVERAGE_FACTOR - 1] = analogRead(pin + 13);
+  avg[ANALOG_INPUT_AVERAGE_FACTOR - 1] = analogRead(pin);
   sum += avg[ANALOG_INPUT_AVERAGE_FACTOR - 1];
   return (sum + (ANALOG_INPUT_AVERAGE_FACTOR/2)) / ANALOG_INPUT_AVERAGE_FACTOR;
 }
