@@ -1,12 +1,12 @@
 <circuit version="2.0.0-" rev="250929" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" anicurr="0" width="3200" height="2400" >
 
 <item itemtype="Subcircuit" CircId="Uno-2" mainComp="false" Show_id="true" Show_Val="false" Pos="-64,-72" rotation="0" hflip="1" vflip="1" label="Uno-2" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Package="2- Logic Symbol">
-<mainCompProps MainCompId="mega328-109" Package="1- mega328_DIP" Frequency="16 MHz" ForceFreq="true" savePGM="false" Program="build/WireFeed.ino.hex" Auto_Load="true" saveEepr="true" MainMcu="true" eeprom="255,0,0," SerialMon="-1" />
+<mainCompProps MainCompId="mega328-109" Package="1- mega328_DIP" Frequency="16 MHz" ForceFreq="true" savePGM="false" Program="build/WireFeed.ino.hex" Auto_Load="true" saveEepr="true" MainMcu="true" eeprom="255,0,0,0," SerialMon="-1" />
 </item>
 
 <item itemtype="Oscope" CircId="Oscope-3" mainComp="false" Show_id="false" Show_Val="false" Pos="188,56" rotation="0" hflip="1" vflip="1" label="Oscope-3" idLabPos="-90,-100" labelrot="0" valLabPos="-16,20" valLabRot="0" Basic_X="135 _px" Basic_Y="135 _px" BufferSize="600000" connectGnd="true" InputImped="10 MΩ" TestTime="0 ns" DoTest="false" TimDiv="24668648" TimPos="0,0,0,0," VolDiv="1,1,1,1," Tunnels=",,,," Trigger="4" Filter="0.1 V" AutoSC="4" Tracks="1" HideCh="false,false,false,false," VolPos="0,0,0,0," />
 
-<item itemtype="Potentiometer" CircId="Potentiometer-4" mainComp="false" ShowProp="Value_Ohm" Show_id="false" Show_Val="true" Pos="-116,24" rotation="180" hflip="1" vflip="1" label="Potentiometer-4" idLabPos="-16,-40" labelrot="0" valLabPos="15,-20" valLabRot="0" Resistance="10 kΩ" Value_Ohm="0 kΩ" Slider="false" Scale="1" />
+<item itemtype="Potentiometer" CircId="Potentiometer-4" mainComp="false" ShowProp="Value_Ohm" Show_id="false" Show_Val="true" Pos="112,-84" rotation="360" hflip="1" vflip="1" label="Potentiometer-4" idLabPos="-16,-40" labelrot="0" valLabPos="15,-20" valLabRot="0" Resistance="10 kΩ" Value_Ohm="9.84 kΩ" Slider="false" Scale="1" />
 
 <item itemtype="SerialTerm" CircId="SerialTerm-11" mainComp="false" Show_id="false" Show_Val="false" Pos="20,108" rotation="0" hflip="1" vflip="-1" label="SerialTerm-11" idLabPos="-20,-32" labelrot="0" valLabPos="-16,20" valLabRot="0" Baudrate="9600 _Bd" DataBits="8 _bits" StopBits="1 _bits" SerialMon="true" />
 
@@ -22,15 +22,21 @@
 
 <item itemtype="Push" CircId="Push-29" mainComp="false" Show_id="false" Show_Val="false" Pos="8,32" rotation="0" hflip="1" vflip="1" label="Push-29" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
 
-<item itemtype="Switch" CircId="Switch-31" mainComp="false" Show_id="false" Show_Val="false" Pos="52,24" rotation="0" hflip="1" vflip="1" label="Switch-31" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" DT="false" Poles="1" Checked="false" />
-
 <item itemtype="Ground" CircId="Ground-33" mainComp="false" Show_id="false" Show_Val="false" Pos="84,96" rotation="0" hflip="1" vflip="1" label="Ground-33" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
 <item itemtype="Push" CircId="Push-39" mainComp="false" Show_id="false" Show_Val="false" Pos="16,-8" rotation="0" hflip="1" vflip="1" label="Push-39" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
 
 <item itemtype="Push" CircId="Push-40" mainComp="false" Show_id="false" Show_Val="false" Pos="48,-16" rotation="0" hflip="1" vflip="1" label="Push-40" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
 
-<item itemtype="Switch" CircId="Switch-43" mainComp="false" Show_id="false" Show_Val="false" Pos="64,0" rotation="0" hflip="1" vflip="1" label="Switch-43" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" DT="false" Poles="1" Checked="false" />
+<item itemtype="Switch" CircId="Switch-43" mainComp="false" Show_id="false" Show_Val="false" Pos="60,0" rotation="0" hflip="1" vflip="1" label="Switch-43" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" DT="false" Poles="1" Checked="true" />
+
+<item itemtype="Potentiometer" CircId="Potentiometer-51" mainComp="false" ShowProp="Value_Ohm" Show_id="false" Show_Val="true" Pos="32,-84" rotation="0" hflip="1" vflip="1" label="Potentiometer-51" idLabPos="-16,-40" labelrot="0" valLabPos="15,-20" valLabRot="0" Resistance="10 kΩ" Value_Ohm="0 kΩ" Slider="false" Scale="1" />
+
+<item itemtype="Ground" CircId="Ground-53" mainComp="false" Show_id="false" Show_Val="false" Pos="68,-68" rotation="0" hflip="1" vflip="1" label="Ground-53" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="Ground" CircId="Ground-54" mainComp="false" Show_id="false" Show_Val="false" Pos="152,-68" rotation="0" hflip="1" vflip="1" label="Ground-54" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="Led" CircId="Led-56" mainComp="false" Show_id="false" Show_Val="false" Pos="44,24" rotation="0" hflip="1" vflip="1" label="Led-56" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" Grounded="false" Threshold="2.4 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
 
 <item itemtype="Node" CircId="Node-34" mainComp="false" Pos="84,32" />
 
@@ -40,15 +46,13 @@
 
 <item itemtype="Node" CircId="Node-38" mainComp="false" Pos="84,72" />
 
-<item itemtype="Node" CircId="Node-41" mainComp="false" Pos="84,24" />
-
 <item itemtype="Node" CircId="Node-42" mainComp="false" Pos="84,-8" />
 
 <item itemtype="Node" CircId="Node-44" mainComp="false" Pos="84,0" />
 
-<item itemtype="Node" CircId="Node-50" mainComp="false" Pos="-76,88" />
+<item itemtype="Node" CircId="Node-55" mainComp="false" Pos="16,-112" />
 
-<item itemtype="Connector" uid="Connector-2" startpinid="Uno-2-9" endpinid="Oscope-3-Pin1" pointList="-8,16,100,16,100,40" />
+<item itemtype="Node" CircId="Node-57" mainComp="false" Pos="84,24" />
 
 <item itemtype="Connector" uid="Connector-17" startpinid="Uno-2-0" endpinid="SerialTerm-11-pin0" pointList="-8,88,-8,116,-4,116" />
 
@@ -62,8 +66,6 @@
 
 <item itemtype="Connector" uid="Connector-44" startpinid="Uno-2-6" endpinid="Push-28-pinP0" pointList="-8,40,20,40,20,44" />
 
-<item itemtype="Connector" uid="Connector-45" startpinid="Uno-2-8" endpinid="Switch-31-pinP0" pointList="-8,24,36,24" />
-
 <item itemtype="Connector" uid="Connector-15" startpinid="Oscope-3-PinG" endpinid="Ground-13-Gnd" pointList="100,120,100,136" />
 
 <item itemtype="Connector" uid="Connector-51" startpinid="Push-29-switch0pinN" endpinid="Node-34-1" pointList="24,32,84,32" />
@@ -71,8 +73,6 @@
 <item itemtype="Connector" uid="Connector-54" startpinid="Push-28-switch0pinN" endpinid="Node-35-1" pointList="52,44,84,44" />
 
 <item itemtype="Connector" uid="Connector-55" startpinid="Node-34-2" endpinid="Node-35-0" pointList="84,32,84,44" />
-
-<item itemtype="Connector" uid="Connector-60" startpinid="Led-27-rPin" endpinid="Node-37-1" pointList="28,64,84,64" />
 
 <item itemtype="Connector" uid="Connector-61" startpinid="Node-35-2" endpinid="Node-37-0" pointList="84,44,84,64" />
 
@@ -86,32 +86,44 @@
 
 <item itemtype="Connector" uid="Connector-67" startpinid="Uno-2-12" endpinid="Push-39-pinP0" pointList="-8,-8,0,-8" />
 
-<item itemtype="Connector" uid="Connector-69" startpinid="Switch-31-switch0pinN" endpinid="Node-41-0" pointList="68,24,84,24" />
-
-<item itemtype="Connector" uid="Connector-70" startpinid="Node-41-2" endpinid="Node-34-0" pointList="84,24,84,32" />
-
 <item itemtype="Connector" uid="Connector-71" startpinid="Node-42-1" endpinid="Push-40-switch0pinN" pointList="84,-8,84,-16,64,-16" />
 
-<item itemtype="Connector" uid="Connector-75" startpinid="Switch-43-switch0pinN" endpinid="Node-44-1" pointList="80,0,84,0" />
+<item itemtype="Connector" uid="Connector-75" startpinid="Switch-43-switch0pinN" endpinid="Node-44-1" pointList="76,0,84,0" />
 
 <item itemtype="Connector" uid="Connector-76" startpinid="Node-42-2" endpinid="Node-44-0" pointList="84,-8,84,0" />
 
-<item itemtype="Connector" uid="Connector-77" startpinid="Node-44-2" endpinid="Node-41-1" pointList="84,0,84,24" />
-
-<item itemtype="Connector" uid="Connector-74" startpinid="Switch-43-pinP0" endpinid="Uno-2-11" pointList="48,0,-8,0" />
+<item itemtype="Connector" uid="Connector-74" startpinid="Switch-43-pinP0" endpinid="Uno-2-11" pointList="44,0,-8,0" />
 
 <item itemtype="Connector" uid="Connector-72" startpinid="Push-39-switch0pinN" endpinid="Node-42-0" pointList="32,-8,84,-8" />
 
 <item itemtype="Connector" uid="Connector-3" startpinid="Uno-2-10" endpinid="Oscope-3-Pin0" pointList="-8,8,100,8" />
 
-<item itemtype="Connector" uid="Connector-92" startpinid="Uno-2-A5" endpinid="Potentiometer-4-PinM" pointList="-8,-64,-8,-100,-116,-100,-116,8" />
+<item itemtype="Connector" uid="Connector-101" startpinid="Uno-2-GND2" endpinid="Ground-12-Gnd" pointList="-72,88,-76,88,-76,120" />
 
-<item itemtype="Connector" uid="Connector-93" startpinid="Potentiometer-4-PinB" endpinid="Node-50-1" pointList="-132,24,-132,88,-76,88" />
+<item itemtype="Connector" uid="Connector-102" startpinid="Uno-2-A5" endpinid="Potentiometer-51-PinM" pointList="-8,-64,32,-64,32,-68" />
 
-<item itemtype="Connector" uid="Connector-94" startpinid="Uno-2-GND2" endpinid="Node-50-0" pointList="-72,88,-76,88" />
+<item itemtype="Connector" uid="Connector-103" startpinid="Uno-2-A4" endpinid="Potentiometer-4-PinM" pointList="-8,-56,112,-56,112,-68" />
 
-<item itemtype="Connector" uid="Connector-95" startpinid="Node-50-2" endpinid="Ground-12-Gnd" pointList="-76,88,-76,120" />
+<item itemtype="Connector" uid="Connector-104" startpinid="Potentiometer-4-PinB" endpinid="Ground-54-Gnd" pointList="128,-84,152,-84" />
 
-<item itemtype="Connector" uid="Connector-96" startpinid="Uno-2-5V0" endpinid="Potentiometer-4-PinA" pointList="-72,48,-100,48,-100,24" />
+<item itemtype="Connector" uid="Connector-105" startpinid="Potentiometer-51-PinB" endpinid="Ground-53-Gnd" pointList="48,-84,68,-84" />
+
+<item itemtype="Connector" uid="Connector-107" startpinid="Potentiometer-51-PinA" endpinid="Node-55-1" pointList="16,-84,16,-112" />
+
+<item itemtype="Connector" uid="Connector-108" startpinid="Uno-2-5V0" endpinid="Node-55-0" pointList="-72,48,-100,48,-100,-112,16,-112" />
+
+<item itemtype="Connector" uid="Connector-109" startpinid="Node-55-2" endpinid="Potentiometer-4-PinA" pointList="16,-112,96,-112,96,-84" />
+
+<item itemtype="Connector" uid="Connector-111" startpinid="Uno-2-8" endpinid="Led-56-lPin" pointList="-8,24,28,24" />
+
+<item itemtype="Connector" uid="Connector-112" startpinid="Led-56-rPin" endpinid="Node-57-1" pointList="60,24,84,24" />
+
+<item itemtype="Connector" uid="Connector-113" startpinid="Node-44-2" endpinid="Node-57-0" pointList="84,0,84,24" />
+
+<item itemtype="Connector" uid="Connector-114" startpinid="Node-57-2" endpinid="Node-34-0" pointList="84,24,84,32" />
+
+<item itemtype="Connector" uid="Connector-60" startpinid="Led-27-rPin" endpinid="Node-37-1" pointList="28,64,84,64" />
+
+<item itemtype="Connector" uid="Connector-2" startpinid="Uno-2-9" endpinid="Oscope-3-Pin1" pointList="-8,16,100,16,100,40" />
 
 </circuit>

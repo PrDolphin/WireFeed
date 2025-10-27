@@ -59,7 +59,7 @@ public:
     if (time - check_time >= 0x8000) {
       return 0;
     }
-    check_time = time + NUMBER_POLL_INTERVAL;
+    check_time += NUMBER_POLL_INTERVAL;
     bool add = !digitalRead(pins[0]);
     if (add == !digitalRead(pins[1])) { // If both or none buttons are pressed
       if (flags & NumberButtons<T>::SCROLLING) {
