@@ -3,7 +3,7 @@
 #include "InputAverager.hpp"
 #include "TimerStopwatch.hpp"
 #include "stepmotor.h"
-#include "ui.hpp"
+#include <GyverTM1637.h>
 
 #define MOTORS_SWITCH_PIN 2
 #define TIMEOUT_LED_PIN 3
@@ -40,12 +40,9 @@
 #define ACCEL_TIME 1
 #define TIMER_TIME 2
 
-#define SPEED_DISP 0
-#define TIMER_DISP 1
-#define C1_DISP 2
-#define DISPLAYS 3
-#define DISPLAY_START_PIN A0
-
+GyverTM1637 speed_disp(A1, A0);
+GyverTM1637 timer_disp(A2, A0);
+GyverTM1637 c1_disp(A3, A0);
 InputAverager in_speed(A5);
 InputAverager in_time(A4);
 NumberButtons<int16_t> c1_off(COEF_ADD_PIN, COEF_SUB_PIN, EEPROM_C1_ADDRESS, 999);
@@ -68,8 +65,13 @@ void setup() {
   pinMode(COEF_ADD_PIN, INPUT_PULLUP);
   pinMode(COEF_SUB_PIN, INPUT_PULLUP);
   motors_init();
-  ui_setup(DISPLAYS, DISPLAY_START_PIN);
-  disp_print(C1_DISP, c1_off.number);
+  speed_disp.clear();
+  speed_disp.brightness(7);
+  timer_disp.clear();
+  timer_disp.brightness(7);
+  c1_disp.clear();
+  c1_disp.brightness(7);
+  c1_disp.displayInt(c1_off.number);
   motor_constants[0] = motor_coef(D1, U1, C1 + c1_off.number); // Для размотчика
   motor_constants[1] = motor_coef(D2, U2, 1000); // Для пистолета
 }
@@ -79,7 +81,8 @@ void loop() {
   if ((uint8_t)(time & 0xFF) - lasttimes[SPEED_TIME] < 0x80) {
     bool system_enabled = !digitalRead(MOTORS_SWITCH_PIN);
     uint16_t speed = map(in_speed.get(), 0, 1023, 10, 500);
-    disp_print(SPEED_DISP, speed);
+    //  uint16_t speed = 200;
+    speed_disp.displayInt(speed);
     target_speed = (system_enabled) ? speed : 0;
     lasttimes[SPEED_TIME] = time + POTENT_POLL_INTERVAL;
   }
@@ -89,13 +92,14 @@ void loop() {
   }
   if ((uint8_t)(time & 0xFF) - lasttimes[TIMER_TIME] < 0x80) {
     time_measurer.startseconds = map(in_time.get(), 0, 1023, 0, 600);
+    //time_measurer.startseconds = 10;
     lasttimes[TIMER_TIME] = time + POTENT_POLL_INTERVAL;
     if (time_measurer.isTimer() && !time_measurer.isTicking() && time_measurer.seconds == 0)
-      disp_print(TIMER_DISP, time_measurer.startseconds);
+      timer_disp.displayInt(time_measurer.startseconds);
   }
   switch (c1_off.tick(time)) {
     case NUMBER_CHANGED:
-      disp_print(C1_DISP, c1_off.number);
+      c1_disp.displayInt(c1_off.number);
       break;
     case NUMBER_WRITTEN: {
       uint32_t constant = motor_coef(D1, U1, C1 + c1_off.number);
@@ -116,7 +120,7 @@ void loop() {
         break;
     }
     case TIMERSTOPWATCH_TICK:
-      disp_print(TIMER_DISP, time_measurer.seconds);
+      timer_disp.displayInt(time_measurer.seconds);
       if (time_measurer.isTimer() && time_measurer.seconds <= 4) {
         digitalWrite(TIMEOUT_LED_PIN, 1);
         led_turnoff_time = time + ((time_measurer.seconds == 1) ? 1000 : 100);
