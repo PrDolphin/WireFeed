@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "stepmotor.h"
 
-#define ENA_PIN (1 << 0)
+#define ENA_PIN (1 << 6) // PIN 13
 
 #define MINSPEED 10
 #define ACCELERATION_STEP 1

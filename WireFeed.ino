@@ -11,7 +11,7 @@
 #define TIMER_RESET_PIN 7
 #define TIMER_STOPWATCH_SWITCH_PIN 11
 #define COEF_ADD_PIN 12
-#define COEF_SUB_PIN 13
+#define COEF_SUB_PIN 8
 
 #define EEPROM_C1_ADDRESS 0
 
@@ -39,16 +39,16 @@
 #define SPEED_TIME 0
 #define ACCEL_TIME 1
 #define TIMER_TIME 2
+#define LED_TURNOFF_TIME 3
 
 GyverTM1637 speed_disp(A1, A0);
 GyverTM1637 timer_disp(A2, A0);
 GyverTM1637 c1_disp(A3, A0);
-InputAverager in_speed(A5);
-InputAverager in_time(A4);
+InputAverager in_speed(A5, 507);
+InputAverager in_time(A4, 610);
 NumberButtons<int16_t> c1_off(COEF_ADD_PIN, COEF_SUB_PIN, EEPROM_C1_ADDRESS, 999);
 TimerStopwatch<uint16_t> time_measurer(TIMER_START_STOP_PIN, TIMER_RESET_PIN, TIMER_STOPWATCH_SWITCH_PIN);
-uint8_t lasttimes[TIMER_TIME + 1];
-uint16_t led_turnoff_time = 0;
+uint16_t lasttimes[LED_TURNOFF_TIME + 1];
 
 
 // 3927 = 31416/8; 3 - 60/20
@@ -69,6 +69,8 @@ void setup() {
   speed_disp.brightness(7);
   timer_disp.clear();
   timer_disp.brightness(7);
+  if (!time_measurer.isTimer())
+    timer_disp.displayInt(time_measurer.seconds);
   c1_disp.clear();
   c1_disp.brightness(7);
   c1_disp.displayInt(c1_off.number);
@@ -78,21 +80,19 @@ void setup() {
 
 void loop() {
   uint16_t time = millis();
-  if ((uint8_t)(time & 0xFF) - lasttimes[SPEED_TIME] < 0x80) {
+  if (time - lasttimes[SPEED_TIME] < 0x8000) {
     bool system_enabled = !digitalRead(MOTORS_SWITCH_PIN);
-    uint16_t speed = map(in_speed.get(), 0, 1023, 10, 500);
-    //  uint16_t speed = 200;
+    uint16_t speed = in_speed.get();
     speed_disp.displayInt(speed);
     target_speed = (system_enabled) ? speed : 0;
     lasttimes[SPEED_TIME] = time + POTENT_POLL_INTERVAL;
   }
-  if ((uint8_t)(time & 0xFF) - lasttimes[ACCEL_TIME] < 0x80) {
+  if (time - lasttimes[ACCEL_TIME] < 0x8000) {
     accelerate((uint8_t)(time & 0xFF) - lasttimes[ACCEL_TIME] + 1);
     lasttimes[ACCEL_TIME] = time + ACCELERATION_INTERVAL;
   }
-  if ((uint8_t)(time & 0xFF) - lasttimes[TIMER_TIME] < 0x80) {
-    time_measurer.startseconds = map(in_time.get(), 0, 1023, 0, 600);
-    //time_measurer.startseconds = 10;
+  if (time - lasttimes[TIMER_TIME] < 0x8000) {
+    time_measurer.startseconds = in_time.get();
     lasttimes[TIMER_TIME] = time + POTENT_POLL_INTERVAL;
     if (time_measurer.isTimer() && !time_measurer.isTicking() && time_measurer.seconds == 0)
       timer_disp.displayInt(time_measurer.startseconds);
@@ -115,18 +115,19 @@ void loop() {
     }
   }
   switch (time_measurer.tick(time)) {
-    case TIMERSTOPWATCH_RESET: {
+    case TIMERSTOPWATCH_MODE_CHANGED:
+    case TIMERSTOPWATCH_RESET:
       if (time_measurer.isTimer())
         break;
-    }
+
     case TIMERSTOPWATCH_TICK:
       timer_disp.displayInt(time_measurer.seconds);
       if (time_measurer.isTimer() && time_measurer.seconds <= 4) {
         digitalWrite(TIMEOUT_LED_PIN, 1);
-        led_turnoff_time = time + ((time_measurer.seconds == 1) ? 1000 : 100);
+        lasttimes[LED_TURNOFF_TIME] = time + ((time_measurer.seconds == 1) ? 1000 : 100);
       }
   }
-  if (time - led_turnoff_time < 0x8000) {
+  if (time - lasttimes[LED_TURNOFF_TIME] < 0x8000) {
     digitalWrite(TIMEOUT_LED_PIN, 0);
   }
 }
