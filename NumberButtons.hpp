@@ -54,7 +54,6 @@ public:
       : (is_signed<T>::value && number < -limit) ? -limit :  number;
   };
   
-  
   uint8_t tick (uint16_t time) {
     if (time - check_time >= 0x8000) {
       return 0;
@@ -84,6 +83,8 @@ public:
       number = limit;
     if ((flags & NumberButtons<T>::SCROLLING) == 0) {
       scroll_write_time = time + NUMBER_SCROLL_START;
+    } else {
+      scroll_write_time = time;
     }
     flags |= NumberButtons<T>::SCROLLING | NumberButtons<T>::WRITE;
     return NUMBER_CHANGED;
