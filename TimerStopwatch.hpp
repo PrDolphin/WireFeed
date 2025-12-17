@@ -35,8 +35,11 @@ public:
       flags ^= TimerStopwatch<T>::TICKING;
       flags |= TimerStopwatch<T>::STARTSTOPPRESSED;
       timernexttick += (flags & TimerStopwatch<T>::TICKING) ? time : -time; // Keep milliseconds intact until next activation
-      if (seconds == 0 && (flags & TimerStopwatch<T>::MODE_TIMER))
-        seconds = startseconds;
+      if (flags & TimerStopwatch<T>::MODE_TIMER) {
+        seconds = (seconds == 0) ? startseconds : seconds;
+      } else {
+        seconds = (seconds == startseconds) ? 0 : seconds;
+      } 
       return TIMERSTOPWATCH_MODE_CHANGED;
     }
     flags &= ~TimerStopwatch<T>::STARTSTOPPRESSED;
