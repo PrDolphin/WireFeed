@@ -1,46 +1,58 @@
 <circuit version="2.0.0-" rev="250929" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" anicurr="0" width="3200" height="2400" >
 
-<item itemtype="Subcircuit" CircId="Uno-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-296,-128" rotation="0" hflip="1" vflip="1" label="Master" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Package="2- Logic Symbol">
-<mainCompProps MainCompId="mega328-109" Package="1- mega328_DIP" Frequency="16 MHz" ForceFreq="true" savePGM="false" Auto_Load="false" saveEepr="true" MainMcu="false" SerialMon="-1" />
+<item itemtype="Subcircuit" CircId="Uno-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-316,-128" rotation="0" hflip="1" vflip="1" label="Master" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Package="2- Logic Symbol">
+<mainCompProps MainCompId="mega328-109" Package="1- mega328_DIP" Frequency="16 MHz" ForceFreq="true" savePGM="false" Program="build/master/master.ino.hex" Auto_Load="true" saveEepr="true" MainMcu="false" SerialMon="-1" />
 </item>
 
-<item itemtype="Subcircuit" CircId="Uno-5" mainComp="false" Show_id="true" Show_Val="false" Pos="40,-64" rotation="0" hflip="1" vflip="1" label="Control panel 1" idLabPos="-16.8738,-19.2021" labelrot="0" valLabPos="-16,20" valLabRot="0" Package="2- Logic Symbol">
-<mainCompProps MainCompId="mega328-109" Package="1- mega328_DIP" Frequency="16 MHz" ForceFreq="true" savePGM="false" Auto_Load="false" saveEepr="true" MainMcu="false" SerialMon="-1" />
+<item itemtype="Subcircuit" CircId="Uno-5" mainComp="false" Show_id="true" Show_Val="false" Pos="36,-64" rotation="0" hflip="1" vflip="1" label="Control panel 1" idLabPos="-16.8738,-19.2021" labelrot="0" valLabPos="-16,20" valLabRot="0" Package="2- Logic Symbol">
+<mainCompProps MainCompId="mega328-109" Package="1- mega328_DIP" Frequency="16 MHz" ForceFreq="true" savePGM="false" Program="build/controller1/controller1.ino.hex" Auto_Load="true" saveEepr="true" MainMcu="false" SerialMon="-1" />
 </item>
 
 <item itemtype="Subcircuit" CircId="Uno-6" mainComp="false" Show_id="true" Show_Val="false" Pos="232,-64" rotation="0" hflip="1" vflip="1" label="Control panel 2" idLabPos="-23.6233,-22.0249" labelrot="0" valLabPos="-16,20" valLabRot="0" Package="2- Logic Symbol">
-<mainCompProps MainCompId="mega328-109" Package="1- mega328_DIP" Frequency="16 MHz" ForceFreq="true" savePGM="false" Auto_Load="false" saveEepr="true" MainMcu="false" SerialMon="-1" />
+<mainCompProps MainCompId="mega328-109" Package="1- mega328_DIP" Frequency="16 MHz" ForceFreq="true" savePGM="false" Auto_Load="false" saveEepr="true" MainMcu="true" SerialMon="-1" />
 </item>
 
-<item itemtype="Ground" CircId="Ground-9" mainComp="false" Show_id="false" Show_Val="false" Pos="-304,56" rotation="0" hflip="1" vflip="1" label="Ground-9" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+<item itemtype="Ground" CircId="Ground-9" mainComp="false" Show_id="false" Show_Val="false" Pos="-324,56" rotation="0" hflip="1" vflip="1" label="Ground-9" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
 <item itemtype="Ground" CircId="Ground-10" mainComp="false" Show_id="false" Show_Val="false" Pos="32,120" rotation="0" hflip="1" vflip="1" label="Ground-10" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
 <item itemtype="Ground" CircId="Ground-11" mainComp="false" Show_id="false" Show_Val="false" Pos="220,116" rotation="0" hflip="1" vflip="1" label="Ground-11" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
-<item itemtype="Oscope" CircId="Oscope-18" mainComp="false" Show_id="false" Show_Val="false" Pos="-116,-24" rotation="0" hflip="1" vflip="1" label="Oscope-18" idLabPos="-90,-100" labelrot="0" valLabPos="-16,20" valLabRot="0" Basic_X="135 _px" Basic_Y="135 _px" BufferSize="600000" connectGnd="true" InputImped="10 MΩ" TestTime="0 ns" DoTest="false" TimDiv="1000000000" TimPos="0,0,0,0," VolDiv="1,1,1,1," Tunnels=",,,," Trigger="4" Filter="0.1 V" AutoSC="4" Tracks="1" HideCh="false,false,false,false," VolPos="0,0,0,0," />
+<item itemtype="Oscope" CircId="Oscope-18" mainComp="false" Show_id="false" Show_Val="false" Pos="-124,-24" rotation="0" hflip="1" vflip="1" label="Oscope-18" idLabPos="-90,-100" labelrot="0" valLabPos="-16,20" valLabRot="0" Basic_X="135 _px" Basic_Y="135 _px" BufferSize="600000" connectGnd="true" InputImped="10 MΩ" TestTime="0 ns" DoTest="false" TimDiv="1000000000" TimPos="0,0,0,0," VolDiv="1,1,1,1," Tunnels=",,,," Trigger="4" Filter="0.1 V" AutoSC="4" Tracks="1" HideCh="false,false,false,false," VolPos="0,0,0,0," />
 
 <item itemtype="Ground" CircId="Ground-19" mainComp="false" Show_id="false" Show_Val="false" Pos="-212,56" rotation="0" hflip="1" vflip="1" label="Ground-19" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
-<item itemtype="Push" CircId="Push-22" mainComp="false" Show_id="false" Show_Val="false" Pos="136,32" rotation="0" hflip="1" vflip="1" label="Push-22" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
+<item itemtype="Push" CircId="Push-22" mainComp="false" Show_id="false" Show_Val="false" Pos="136,24" rotation="0" hflip="1" vflip="1" label="Push-22" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
 
-<item itemtype="Switch" CircId="Switch-23" mainComp="false" Show_id="false" Show_Val="false" Pos="120,40" rotation="0" hflip="1" vflip="1" label="Switch-23" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" DT="false" Poles="1" Checked="false" />
+<item itemtype="Switch" CircId="Switch-23" mainComp="false" Show_id="false" Show_Val="false" Pos="120,32" rotation="0" hflip="1" vflip="1" label="Switch-23" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" DT="false" Poles="1" Checked="false" />
 
-<item itemtype="KY040" CircId="KY040-24" mainComp="false" Show_id="false" Show_Val="false" Pos="140,76" rotation="90" hflip="1" vflip="1" label="KY040-24" idLabPos="-34,20" labelrot="-90" valLabPos="-16,20" valLabRot="0" Steps="30" />
+<item itemtype="KY040" CircId="KY040-24" mainComp="false" Show_id="false" Show_Val="false" Pos="144,76" rotation="90" hflip="1" vflip="1" label="KY040-24" idLabPos="-34,20" labelrot="-90" valLabPos="-16,20" valLabRot="0" Steps="20" />
 
-<item itemtype="Led" CircId="Led-25" mainComp="false" Show_id="false" Show_Val="false" Pos="124,16" rotation="0" hflip="1" vflip="1" label="Led-25" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" Grounded="false" Threshold="2.4 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
+<item itemtype="Led" CircId="Led-25" mainComp="false" Show_id="false" Show_Val="false" Pos="124,8" rotation="0" hflip="1" vflip="1" label="Led-25" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" Grounded="false" Threshold="2.4 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
 
-<item itemtype="Push" CircId="Push-35" mainComp="false" Show_id="false" Show_Val="false" Pos="120,24" rotation="0" hflip="1" vflip="1" label="Push-35" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
+<item itemtype="Push" CircId="Push-35" mainComp="false" Show_id="false" Show_Val="false" Pos="120,16" rotation="0" hflip="1" vflip="1" label="Push-35" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
 
-<item itemtype="KY040" CircId="KY040-37" mainComp="false" Show_id="false" Show_Val="false" Pos="332,76" rotation="90" hflip="1" vflip="1" label="KY040-37" idLabPos="-34,20" labelrot="-90" valLabPos="-16,20" valLabRot="0" Steps="30" />
+<item itemtype="KY040" CircId="KY040-37" mainComp="false" Show_id="false" Show_Val="false" Pos="348,76" rotation="90" hflip="1" vflip="1" label="KY040-37" idLabPos="-34,20" labelrot="-90" valLabPos="-16,20" valLabRot="0" Steps="30" />
 
 <item itemtype="Ground" CircId="Ground-39" mainComp="false" Show_id="false" Show_Val="false" Pos="164,56" rotation="0" hflip="1" vflip="1" label="Ground-39" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
-<item itemtype="Push" CircId="Push-41" mainComp="false" Show_id="false" Show_Val="false" Pos="328,40" rotation="0" hflip="1" vflip="1" label="Push-41" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
+<item itemtype="Push" CircId="Push-41" mainComp="false" Show_id="false" Show_Val="false" Pos="328,32" rotation="0" hflip="1" vflip="1" label="Push-41" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
 
-<item itemtype="Push" CircId="Push-42" mainComp="false" Show_id="false" Show_Val="false" Pos="312,32" rotation="0" hflip="1" vflip="1" label="Push-42" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
+<item itemtype="Push" CircId="Push-42" mainComp="false" Show_id="false" Show_Val="false" Pos="312,24" rotation="0" hflip="1" vflip="1" label="Push-42" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Norm_Close="false" Poles="1" />
 
 <item itemtype="Ground" CircId="Ground-52" mainComp="false" Show_id="false" Show_Val="false" Pos="376,64" rotation="0" hflip="1" vflip="1" label="Ground-52" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="SerialTerm" CircId="SerialTerm-56" mainComp="false" Show_id="false" Show_Val="false" Pos="-224,80" rotation="0" hflip="1" vflip="1" label="SerialTerm-56" idLabPos="-20,-32" labelrot="0" valLabPos="-16,20" valLabRot="0" Baudrate="9600 _Bd" DataBits="8 _bits" StopBits="1 _bits" SerialMon="true" />
+
+<item itemtype="SerialTerm" CircId="SerialTerm-67" mainComp="false" Show_id="false" Show_Val="false" Pos="124,116" rotation="0" hflip="1" vflip="1" label="SerialTerm-67" idLabPos="-20,-32" labelrot="0" valLabPos="-16,20" valLabRot="0" Baudrate="9600 _Bd" DataBits="8 _bits" StopBits="1 _bits" SerialMon="true" />
+
+<item itemtype="KY040" CircId="KY040-68" mainComp="false" Show_id="false" Show_Val="false" Pos="-132,240" rotation="90" hflip="1" vflip="1" label="KY040-68" idLabPos="-34,20" labelrot="-90" valLabPos="-16,20" valLabRot="0" Steps="20" />
+
+<item itemtype="Led" CircId="Led-69" mainComp="false" Show_id="false" Show_Val="false" Pos="-200,228" rotation="180" hflip="1" vflip="1" label="Led-69" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" Grounded="false" Threshold="2.4 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
+
+<item itemtype="Led" CircId="Led-70" mainComp="false" Show_id="false" Show_Val="false" Pos="-200,252" rotation="180" hflip="1" vflip="1" label="Led-70" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" Grounded="false" Threshold="2.4 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-71" mainComp="false" Show_id="false" Show_Val="false" Pos="-216,276" rotation="0" hflip="1" vflip="1" label="Ground-71" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
 <item itemtype="Node" CircId="Node-7" mainComp="false" Pos="96,-120" />
 
@@ -48,86 +60,106 @@
 
 <item itemtype="Node" CircId="Node-12" mainComp="false" Pos="4,132" />
 
-<item itemtype="Node" CircId="Node-30" mainComp="false" Pos="164,36" />
+<item itemtype="Node" CircId="Node-30" mainComp="false" Pos="164,24" />
 
-<item itemtype="Node" CircId="Node-36" mainComp="false" Pos="164,24" />
+<item itemtype="Node" CircId="Node-36" mainComp="false" Pos="164,16" />
 
-<item itemtype="Node" CircId="Node-40" mainComp="false" Pos="164,40" />
+<item itemtype="Node" CircId="Node-40" mainComp="false" Pos="164,32" />
 
-<item itemtype="Node" CircId="Node-54" mainComp="false" Pos="376,40" />
+<item itemtype="Node" CircId="Node-54" mainComp="false" Pos="376,32" />
 
-<item itemtype="Connector" uid="Connector-5" startpinid="Uno-5-A5" endpinid="Node-7-1" pointList="96,-56,96,-120" />
+<item itemtype="Node" CircId="Node-72" mainComp="false" Pos="-216,252" />
 
-<item itemtype="Connector" uid="Connector-6" startpinid="Uno-1-A5" endpinid="Node-7-0" pointList="-240,-120,96,-120" />
+<item itemtype="Connector" uid="Connector-5" startpinid="Uno-5-A5" endpinid="Node-7-1" pointList="92,-56,96,-56,96,-120" />
 
 <item itemtype="Connector" uid="Connector-7" startpinid="Node-7-2" endpinid="Uno-6-A5" pointList="96,-120,288,-120,288,-56" />
 
-<item itemtype="Connector" uid="Connector-9" startpinid="Uno-5-A4" endpinid="Node-8-1" pointList="96,-48,108,-48,108,-112" />
-
-<item itemtype="Connector" uid="Connector-10" startpinid="Uno-1-A4" endpinid="Node-8-0" pointList="-240,-112,108,-112" />
+<item itemtype="Connector" uid="Connector-9" startpinid="Uno-5-A4" endpinid="Node-8-1" pointList="92,-48,108,-48,108,-112" />
 
 <item itemtype="Connector" uid="Connector-11" startpinid="Node-8-2" endpinid="Uno-6-A4" pointList="108,-112,300,-112,300,-48,288,-48" />
 
-<item itemtype="Connector" uid="Connector-15" startpinid="Uno-5-5V0" endpinid="Node-12-1" pointList="32,56,4,56,4,132" />
+<item itemtype="Connector" uid="Connector-15" startpinid="Uno-5-5V0" endpinid="Node-12-1" pointList="28,56,4,56,4,132" />
 
 <item itemtype="Connector" uid="Connector-16" startpinid="Uno-6-5V0" endpinid="Node-12-0" pointList="224,56,180,56,180,132,4,132" />
 
-<item itemtype="Connector" uid="Connector-17" startpinid="Node-12-2" endpinid="Uno-1-5V0" pointList="4,132,-340,132,-340,-8,-304,-8" />
-
-<item itemtype="Connector" uid="Connector-38" startpinid="Uno-1-GND2" endpinid="Ground-9-Gnd" pointList="-304,32,-304,40" />
+<item itemtype="Connector" uid="Connector-38" startpinid="Uno-1-GND2" endpinid="Ground-9-Gnd" pointList="-324,32,-324,40" />
 
 <item itemtype="Connector" uid="Connector-39" startpinid="Uno-6-GND2" endpinid="Ground-11-Gnd" pointList="224,96,220,96,220,100" />
 
-<item itemtype="Connector" uid="Connector-40" startpinid="Ground-10-Gnd" endpinid="Uno-5-GND2" pointList="32,104,32,96" />
+<item itemtype="Connector" uid="Connector-40" startpinid="Ground-10-Gnd" endpinid="Uno-5-GND2" pointList="32,104,28,104,28,96" />
 
-<item itemtype="Connector" uid="Connector-41" startpinid="Uno-1-9" endpinid="Oscope-18-Pin1" pointList="-240,-40,-204,-40" />
+<item itemtype="Connector" uid="Connector-41" startpinid="Uno-1-9" endpinid="Oscope-18-Pin1" pointList="-260,-40,-212,-40" />
 
-<item itemtype="Connector" uid="Connector-42" startpinid="Uno-1-10" endpinid="Oscope-18-Pin0" pointList="-240,-48,-224,-48,-224,-72,-204,-72" />
+<item itemtype="Connector" uid="Connector-42" startpinid="Uno-1-10" endpinid="Oscope-18-Pin0" pointList="-260,-48,-212,-48,-212,-72" />
 
-<item itemtype="Connector" uid="Connector-43" startpinid="Oscope-18-PinG" endpinid="Ground-19-Gnd" pointList="-204,40,-212,40" />
+<item itemtype="Connector" uid="Connector-43" startpinid="Oscope-18-PinG" endpinid="Ground-19-Gnd" pointList="-212,40,-212,40" />
 
-<item itemtype="Connector" uid="Connector-44" startpinid="Uno-5-6" endpinid="KY040-24-sw" pointList="96,48,104,48,104,64" />
+<item itemtype="Connector" uid="Connector-46" startpinid="Uno-5-2" endpinid="KY040-24-clk" pointList="92,80,108,80" />
 
-<item itemtype="Connector" uid="Connector-45" startpinid="Uno-5-3" endpinid="KY040-24-dt" pointList="96,72,104,72" />
+<item itemtype="Connector" uid="Connector-71" startpinid="Push-22-switch0pinN" endpinid="Node-30-0" pointList="152,24,164,24" />
 
-<item itemtype="Connector" uid="Connector-46" startpinid="Uno-5-2" endpinid="KY040-24-clk" pointList="96,80,104,80" />
+<item itemtype="Connector" uid="Connector-82" startpinid="Node-36-1" endpinid="Push-35-switch0pinN" pointList="164,16,136,16" />
 
-<item itemtype="Connector" uid="Connector-49" startpinid="Uno-5-8" endpinid="Push-22-pinP0" pointList="96,32,120,32" />
+<item itemtype="Connector" uid="Connector-83" startpinid="Node-30-1" endpinid="Node-36-0" pointList="164,24,164,16" />
 
-<item itemtype="Connector" uid="Connector-53" startpinid="Uno-5-7" endpinid="Switch-23-pinP0" pointList="96,40,104,40" />
+<item itemtype="Connector" uid="Connector-84" startpinid="Node-36-2" endpinid="Led-25-rPin" pointList="164,16,164,8,140,8" />
 
-<item itemtype="Connector" uid="Connector-71" startpinid="Push-22-switch0pinN" endpinid="Node-30-0" pointList="152,32,164,32,164,36" />
+<item itemtype="Connector" uid="Connector-85" startpinid="Uno-6-2" endpinid="KY040-37-clk" pointList="288,80,312,80" />
 
-<item itemtype="Connector" uid="Connector-55" startpinid="Uno-5-10" endpinid="Led-25-lPin" pointList="96,16,108,16" />
+<item itemtype="Connector" uid="Connector-89" startpinid="Node-40-1" endpinid="Ground-39-Gnd" pointList="164,32,164,40" />
 
-<item itemtype="Connector" uid="Connector-81" startpinid="Uno-5-9" endpinid="Push-35-pinP0" pointList="96,24,104,24" />
+<item itemtype="Connector" uid="Connector-90" startpinid="Switch-23-switch0pinN" endpinid="Node-40-0" pointList="136,32,164,32" />
 
-<item itemtype="Connector" uid="Connector-82" startpinid="Node-36-1" endpinid="Push-35-switch0pinN" pointList="164,24,136,24" />
+<item itemtype="Connector" uid="Connector-91" startpinid="Node-40-2" endpinid="Node-30-2" pointList="164,32,164,24" />
 
-<item itemtype="Connector" uid="Connector-83" startpinid="Node-30-1" endpinid="Node-36-0" pointList="164,36,164,24" />
+<item itemtype="Connector" uid="Connector-115" startpinid="Push-42-switch0pinN" endpinid="Node-54-1" pointList="328,24,376,24,376,32" />
 
-<item itemtype="Connector" uid="Connector-84" startpinid="Node-36-2" endpinid="Led-25-rPin" pointList="164,24,164,16,140,16" />
+<item itemtype="Connector" uid="Connector-116" startpinid="Push-41-switch0pinN" endpinid="Node-54-0" pointList="344,32,376,32" />
 
-<item itemtype="Connector" uid="Connector-85" startpinid="Uno-6-2" endpinid="KY040-37-clk" pointList="288,80,296,80" />
+<item itemtype="Connector" uid="Connector-117" startpinid="Node-54-2" endpinid="Ground-52-Gnd" pointList="376,32,376,48" />
 
-<item itemtype="Connector" uid="Connector-86" startpinid="KY040-37-dt" endpinid="Uno-6-3" pointList="296,72,288,72" />
+<item itemtype="Connector" uid="Connector-121" startpinid="Uno-6-6" endpinid="KY040-37-dt" pointList="288,48,296,48,296,72,312,72" />
 
-<item itemtype="Connector" uid="Connector-87" startpinid="Uno-6-6" endpinid="KY040-37-sw" pointList="288,48,296,48,296,64" />
+<item itemtype="Connector" uid="Connector-123" startpinid="Uno-6-8" endpinid="Push-41-pinP0" pointList="288,32,312,32" />
 
-<item itemtype="Connector" uid="Connector-89" startpinid="Node-40-1" endpinid="Ground-39-Gnd" pointList="164,40,164,40" />
+<item itemtype="Connector" uid="Connector-124" startpinid="Uno-6-9" endpinid="Push-42-pinP0" pointList="288,24,296,24" />
 
-<item itemtype="Connector" uid="Connector-90" startpinid="Switch-23-switch0pinN" endpinid="Node-40-0" pointList="136,40,164,40" />
+<item itemtype="Connector" uid="Connector-125" startpinid="Uno-6-7" endpinid="KY040-37-sw" pointList="288,40,300,40,300,64,312,64" />
 
-<item itemtype="Connector" uid="Connector-91" startpinid="Node-40-2" endpinid="Node-30-2" pointList="164,40,164,36" />
+<item itemtype="Connector" uid="Connector-127" startpinid="Uno-5-11" endpinid="Led-25-lPin" pointList="92,8,108,8" />
 
-<item itemtype="Connector" uid="Connector-115" startpinid="Push-42-switch0pinN" endpinid="Node-54-1" pointList="328,32,376,32,376,40" />
+<item itemtype="Connector" uid="Connector-128" startpinid="Uno-5-10" endpinid="Push-35-pinP0" pointList="92,16,104,16" />
 
-<item itemtype="Connector" uid="Connector-116" startpinid="Push-41-switch0pinN" endpinid="Node-54-0" pointList="344,40,376,40" />
+<item itemtype="Connector" uid="Connector-129" startpinid="Uno-5-8" endpinid="Switch-23-pinP0" pointList="92,32,104,32" />
 
-<item itemtype="Connector" uid="Connector-117" startpinid="Node-54-2" endpinid="Ground-52-Gnd" pointList="376,40,376,48" />
+<item itemtype="Connector" uid="Connector-132" startpinid="Push-22-pinP0" endpinid="Uno-5-9" pointList="120,24,92,24" />
 
-<item itemtype="Connector" uid="Connector-118" startpinid="Uno-6-8" endpinid="Push-42-pinP0" pointList="288,32,296,32" />
+<item itemtype="Connector" uid="Connector-133" startpinid="Uno-5-7" endpinid="KY040-24-sw" pointList="92,40,104,40,104,64,108,64" />
 
-<item itemtype="Connector" uid="Connector-120" startpinid="Uno-6-7" endpinid="Push-41-pinP0" pointList="288,40,312,40" />
+<item itemtype="Connector" uid="Connector-134" startpinid="Uno-5-6" endpinid="KY040-24-dt" pointList="92,48,100,48,100,72,108,72" />
+
+<item itemtype="Connector" uid="Connector-135" startpinid="SerialTerm-56-pin0" endpinid="Uno-1-0" pointList="-248,72,-248,32,-260,32" />
+
+<item itemtype="Connector" uid="Connector-136" startpinid="SerialTerm-56-pin1" endpinid="Uno-1-1" pointList="-248,88,-252,88,-252,24,-260,24" />
+
+<item itemtype="Connector" uid="Connector-156" startpinid="SerialTerm-67-pin0" endpinid="Uno-5-0" pointList="100,108,100,96,92,96" />
+
+<item itemtype="Connector" uid="Connector-157" startpinid="SerialTerm-67-pin1" endpinid="Uno-5-1" pointList="100,124,96,124,96,88,92,88" />
+
+<item itemtype="Connector" uid="Connector-159" startpinid="Led-69-rPin" endpinid="Node-72-1" pointList="-216,228,-216,252" />
+
+<item itemtype="Connector" uid="Connector-160" startpinid="Led-70-rPin" endpinid="Node-72-0" pointList="-216,252,-216,252" />
+
+<item itemtype="Connector" uid="Connector-161" startpinid="Node-72-2" endpinid="Ground-71-Gnd" pointList="-216,252,-216,260" />
+
+<item itemtype="Connector" uid="Connector-162" startpinid="Led-70-lPin" endpinid="KY040-68-clk" pointList="-184,252,-184,244,-168,244" />
+
+<item itemtype="Connector" uid="Connector-163" startpinid="KY040-68-dt" endpinid="Led-69-lPin" pointList="-168,236,-184,236,-184,228" />
+
+<item itemtype="Connector" uid="Connector-173" startpinid="Node-12-2" endpinid="Uno-1-5V0" pointList="4,132,-340,132,-340,-8,-324,-8" />
+
+<item itemtype="Connector" uid="Connector-174" startpinid="Uno-1-A5" endpinid="Node-7-0" pointList="-260,-120,96,-120" />
+
+<item itemtype="Connector" uid="Connector-175" startpinid="Uno-1-A4" endpinid="Node-8-0" pointList="-260,-112,108,-112" />
 
 </circuit>
