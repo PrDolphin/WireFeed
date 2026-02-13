@@ -1,43 +1,38 @@
-#include <Wire.h>
 #include "definitions.h"
+#include "contpcb_lib.h"
 
-#define ENCODER_INT_PIN 2
-#define ENCODER_DIR_PIN 6
+// https://forum.arduino.cc/t/resetting-millis-to-zero-reset-clock/180147
 
-union {
-  int16_t val;
-  uint8_t dat[2];
-} encoder_pos = {.val = 0};
-
-volatile uint16_t last_checked = 0;
-
-void onEncoderTurn(void) {
-  uint16_t time = millis();
-  if (time - last_checked < 50)
+template <void (*fn)(void), typename T, T interval> void exec_timed(T time) {
+  static T last_time = time;
+  if (last_time - time < ((T)-1) >> 1)
     return;
-  last_checked = time;
-  encoder_pos.val += (digitalRead(ENCODER_DIR_PIN) << 1) - 1;
+  last_time += interval;
+  fn();
 }
 
-void I2C_TxHandler(void)
-{
-  Wire.write(encoder_pos.dat[0]);
-  Wire.write(encoder_pos.dat[1]);
+extern volatile unsigned long timer0_millis;
+volatile uint16_t &timer0_millis16 = *(volatile uint16_t*)&timer0_millis;
+
+uint16_t millis16() {
+  uint8_t sreg = SREG;
+  uint16_t time;
+  cli();
+  time = *(uint16_t*)&timer0_millis;
+  SREG = sreg;
+  return time;
 }
+
+uint16_t buttons_sent;
+uint16_t analog_sent[2];
+int16_t encoder_pos_sent[2];
 
 void setup() {
-  Wire.begin(CONTROLLER1_ADDRESS);
-  Wire.setClock(I2C_FREQUENCY);
-  Wire.onRequest(I2C_TxHandler);
-  pinMode(2, INPUT_PULLUP);
-  pinMode(6, INPUT_PULLUP);
-  pinMode(A4, INPUT);
-  pinMode(A5, INPUT);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_INT_PIN), onEncoderTurn, FALLING);
-  Serial.begin(9600);
+  
+  pcb_init();
+  //Serial.begin(9600);
 }
 
 void loop() {
-  Serial.println(encoder_pos.val);
-  delay(200);
+  
 }
