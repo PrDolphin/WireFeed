@@ -1,24 +1,20 @@
 #ifndef CONTPCB_LIB_HPP
 #define CONTPCB_LIB_HPP
 
-#define ANALOG1 0
-#define ANALOG2 1
+#define ANALOG1 A6
+#define ANALOG2 A7
 
-#define ENC_BUT1   0
-#define ENC_BUT2   1
-#define ARR_BUT1   2
-#define ARR_BUT2   7
-#define ARR_BUT3   3
-#define ARR_BUT4   8
-#define ARR_BUT5   4
-#define ARR_BUT6   9
-#define ARR_BUT7   5
-#define ARR_BUT8  10
-#define ARR_BUT9   6
-#define ARR_BUT10 11
+#define ENC_BUT1   6
+#define ENC_BUT2   7
+#define ARR_BUT1   11
+#define ARR_BUT2   12
+#define ARR_BUT3   A0
+#define ARR_BUT4   A1
+#define ARR_BUT5   A2
+#define ARR_BUT6   A3
 
-#define PWM_PIN1 0
-#define PWM_PIN2 1
+#define PWM_PIN1 9
+#define PWM_PIN2 10
 
 #define PWM_MODE_COUNTER 0
 // CTC with ICR as TOP
@@ -38,25 +34,30 @@
 #define PWM_PRE_EXT_FALL (_BV(CS12) | _BV(CS11))
 #define PWM_PRE_EXT_RISE (_BV(CS12) | _BV(CS11) | _BV(CS10))
 
-#define TWIRE_DIO 8
-#define TWIRE_CLK1 6
-#define TWIRE_CLK2 7
-#define TWIRE_CLK3 13
+#ifndef AVOID_I2C_PINS
+#define SOFTI2C_DIO SDA
+#define SOFTI2C_CLK 8
+#define SOFTI2C_CLK2 13
+#else
+#define SOFTI2C_DIO 13
+#define SOFTI2C_CLK 8
+#endif
+
+#define ENCODER1_CONNECTED 0x1
+#define ENCODER2_CONNECTED 0x2
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern uint16_t buttons;
 extern volatile int16_t encoder_pos[2];
+extern uint8_t encoder_step_multiplier[2];
 
 uint16_t analog_read(uint8_t pin);
-bool digital_read(uint8_t button);
 void pwm_setup(uint8_t prescaler, uint16_t mode, uint16_t top = -1);
 void analog_write(uint8_t pin, uint16_t duty);
 void analog_write_stop(uint8_t pin);
-void pcb_init();
-void pcb_read();
+void pcb_init(uint8_t flags);
 
 #ifdef __cplusplus
 }

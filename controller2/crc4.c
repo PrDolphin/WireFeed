@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include <avr/pgmspace.h>
+#include <stdint.h>
 
 const PROGMEM uint8_t crc4_table[16] = {
   0x0, 0x2, 0x4, 0x6, 0x8, 0xA, 0xC, 0xE,

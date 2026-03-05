@@ -2,7 +2,7 @@
 #define NUMBER_BUTTONS_H
 
 #ifndef NUMBER_POLL_INTERVAL
-#define NUMBER_POLL_INTERVAL 100
+#define NUMBER_POLL_INTERVAL 50
 #endif // NUMBER_POLL_INTERVAL
 #ifndef NUMBER_SCROLL_START
 #define NUMBER_SCROLL_START NUMBER_POLL_INTERVAL * 5
@@ -40,18 +40,18 @@ private:
   uint16_t scroll_write_time;
 public:
   uint8_t pins[2];
-  T number;
+  T value;
   T limit;
   
   NumberButtons (uint8_t add_pin, uint8_t sub_pin, uint8_t eeprom_address, T sym_limit)
   : pins{add_pin, sub_pin}, eeprom{eeprom_address}, limit{sym_limit}
-  , flags{0}, check_time{0}, number{0}
+  , flags{0}, check_time{0}, value{0}
   {
     for (uint8_t i = 0; i < sizeof(T); ++i) {
-      number |= (T)EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom) << (i * 8);
+      value |= (T)EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom) << (i * 8);
     }
-    number = (number > limit) ? limit
-      : (is_signed<T>::value && number < -limit) ? -limit :  number;
+    value = (value > limit) ? limit
+      : (is_signed<T>::value && value < -limit) ? -limit :  value;
   };
   
   uint8_t tick (uint16_t time) {
@@ -69,18 +69,20 @@ public:
         return 0;
       
       for (uint8_t i = 0; i < sizeof(T); ++i) {
-        EEPROM.update(NUMBER_EEPROM_OFFSET + eeprom, number >> (i * 8));
+        uint8_t byte = EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom);
+        if (value >> (i * 8) != byte)
+          EEPROM.write(NUMBER_EEPROM_OFFSET + eeprom, value >> (i * 8));
       }
       flags &= ~NumberButtons<T>::WRITE;
       return NUMBER_WRITTEN;
     }
     if ((flags & NumberButtons<T>::SCROLLING) && time - scroll_write_time >= 0x8000)
       return 0;
-    number += (add) ? 1 : -1;
-    if (number > limit)
-      number = (is_signed<T>::value) ? -limit : 0;
-    if (is_signed<T>::value && number < -limit)
-      number = limit;
+    value += (add) ? 1 : -1;
+    if (value > limit)
+      value = (is_signed<T>::value) ? -limit : 0;
+    if (is_signed<T>::value && value < -limit)
+      value = limit;
     if ((flags & NumberButtons<T>::SCROLLING) == 0) {
       scroll_write_time = time + NUMBER_SCROLL_START;
     } else {
