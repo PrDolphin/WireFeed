@@ -8,19 +8,18 @@
 
 #define ENCODER_CONNECTED 1
 #define ENCODER_SHIFT_COEF 10
-#define POLL_INTERVAL 100 // Prevent button bounce by simply not asking it too often
+#define POLL_INTERVAL 5
 #define SHOW_TIMERSTARTTIME_MS 3000
-#define TIMER_STOPWATCH_SELECTOR 1
+#define BUTTON_ENCODER ENCODER_CONNECTED
+#define TIMER_STOPWATCH_SELECTOR 5
 #define BUTTON_COEF_PLUS ARR_BUT5
 #define BUTTON_COEF_MINUS ARR_BUT6
-#define BUTTON_ENCODER 0
 #define STARTUP_DELAY 100
 
 uint16_t timer_starttime_sent = 1;
 uint16_t update_time = 0;
 bool timer_startvalue_displayed = false;
 uint16_t timer_startvalue_last_updated = 0;
-uint8_t buttons = 0;
 
 GyverTM1637 coef_disp(SOFTI2C_CLK, SOFTI2C_DIO);
 GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
@@ -31,10 +30,6 @@ NumberButtons<int16_t> coef(BUTTON_COEF_PLUS, BUTTON_COEF_MINUS, 4, 999);
 static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_diff);
 
 MessageTransceiver<8> msg_stream(Serial, process_messages);
-
-void buttons_update() {
-  buttons = (~PIND >> (ENC_BUT1 + ENCODER_CONNECTED) & 1) | (~PINC & 0xE); // Buttons are expected on A1, A2, A3
-}
 
 void serial_clear(HardwareSerial &serial) {
   while(serial.available()) {
@@ -53,7 +48,6 @@ void setup() {
   timer_disp.clear();
   timer_disp.brightness(7);
   buttons_update();
-  buttons = ~buttons; // To resend entire state
   delay(STARTUP_DELAY);
   serial_clear(Serial);
 }

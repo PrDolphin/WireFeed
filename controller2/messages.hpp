@@ -22,7 +22,6 @@
 #define STATE_ACK_AWAIT 0x8
 #define STATE_MARK_SENT_TIME 0x10
 
-#include <Arduino.h>
 #define TIME_IDLE_RECEIVE 3
 #define TIME_IDLE_SEND 1
 #define ACK_TIMEOUT 10

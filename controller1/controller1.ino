@@ -6,20 +6,19 @@
 
 #define ENCODER_CONNECTED 1
 #define ENCODER_SHIFT_COEF 10
-#define POLL_INTERVAL 100 // Prevent button bounce by simply not asking about it too often
-#define BUTTON_ENCODER 0
-#define MOTORS_SWITCHON 1
-#define BUTTON_TIMER_STARTSTOP 2
-#define BUTTON_TIMER_RESET 3
+#define POLL_INTERVAL 5
+#define BUTTON_ENCODER ENCODER_CONNECTED
+#define MOTORS_SWITCHON 5
+#define BUTTON_TIMER_STARTSTOP 6
+#define BUTTON_TIMER_RESET 7
 #define LED_PIN PWM_PIN1
 #define LED_SHORT 300
 #define LED_LONG 900
-#define STARTUP_DELAY 1000
+#define STARTUP_DELAY 100
 
 int16_t motorspeed_sent = 0;
 uint16_t update_time = 0;
 uint16_t led_shutdown_time = 0;
-uint8_t buttons = 0;
 
 GyverTM1637 speed_disp(SOFTI2C_CLK, SOFTI2C_DIO);
 GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
@@ -29,10 +28,6 @@ TimerStopwatch<uint16_t> timerstopwatch;
 static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_diff);
 
 MessageTransceiver<8> msg_stream(Serial, process_messages);
-
-void buttons_update() {
-  buttons = (~PIND >> (ENC_BUT1 + ENCODER_CONNECTED) & 1) | (~PINC & 0xE); // Buttons are expected on A1, A2, A3
-}
 
 void serial_clear(HardwareSerial &serial) {
   while(serial.available()) {
@@ -46,7 +41,6 @@ void setup() {
   Serial.setTimeout(10);
   update_time = millis();
   buttons_update();
-  buttons = ~buttons; // To resend entire state
   speed_disp.clear();
   speed_disp.brightness(7);
   timer_disp.clear();

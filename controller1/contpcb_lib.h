@@ -52,12 +52,14 @@ extern "C" {
 
 extern volatile int16_t encoder_pos[2];
 extern uint8_t encoder_step_multiplier[2];
+extern uint8_t buttons;
 
 uint16_t analog_read(uint8_t pin);
 void pwm_setup(uint8_t prescaler, uint16_t mode, uint16_t top = -1);
 void analog_write(uint8_t pin, uint16_t duty);
 void analog_write_stop(uint8_t pin);
 void pcb_init(uint8_t flags);
+void buttons_update();
 
 #ifdef __cplusplus
 }
