@@ -21,8 +21,8 @@ uint16_t update_time = 0;
 uint16_t led_shutdown_time = 0;
 uint8_t buttons = 0;
 
-GyverTM1637 speed_disp(SCL, SDA);
-GyverTM1637 timer_disp(SOFTI2C_CLK, SOFTI2C_DIO);
+GyverTM1637 speed_disp(SOFTI2C_CLK, SOFTI2C_DIO);
+GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
 
 TimerStopwatch<uint16_t> timerstopwatch;
 

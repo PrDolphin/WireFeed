@@ -14,7 +14,7 @@
 #define BUTTON_COEF_PLUS ARR_BUT5
 #define BUTTON_COEF_MINUS ARR_BUT6
 #define BUTTON_ENCODER 0
-#define STARTUP_DELAY 1000
+#define STARTUP_DELAY 100
 
 uint16_t timer_starttime_sent = 1;
 uint16_t update_time = 0;
@@ -23,7 +23,7 @@ uint16_t timer_startvalue_last_updated = 0;
 uint8_t buttons = 0;
 
 GyverTM1637 coef_disp(SOFTI2C_CLK, SOFTI2C_DIO);
-GyverTM1637 timer_disp(SCL, SDA);
+GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
 
 TimerStopwatch<uint16_t> timerstopwatch;
 NumberButtons<int16_t> coef(BUTTON_COEF_PLUS, BUTTON_COEF_MINUS, 4, 999);
