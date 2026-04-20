@@ -72,7 +72,10 @@ public:
                   ? speed - ACCELERATION_STEP * n_steps
                   : local_target_speed;
     }
+    uint8_t sreg = SREG;
+    cli();
     timer_max = speed(coefficient, speed);
+    SREG = sreg;
     return;
   }
 
@@ -81,7 +84,11 @@ public:
   }
 
   void set_coefficient(uint32_t coef) {
-    speed = (coef + timer_max / 2) / timer_max;
+    uint8_t sreg = SREG;
+    cli();
+    if (speed > 0)
+      speed = (coef + timer_max / 2) / timer_max;
     coefficient = coef;
+    SREG = sreg;
   }
 };

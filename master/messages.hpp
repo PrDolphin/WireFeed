@@ -10,8 +10,8 @@
 #define MSG_TIMERSTOPWATCH_STOP 4
 #define MSG_TIMERSTOPWATCH_START 5
 #define MSG_TIMERSTOPWATCH_TIMER_SECONDS 6
-// First message to be ignored by main controller and instead retransmitted to slaves
-#define MSG_FIRST_REDIRECT 3
+// First message to be retransmitted to slaves
+#define MSG_FIRST_REDIRECT 4
 #define MSG_SIZE 3
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -48,11 +48,11 @@ private:
       serial.read();
     }
   }
-  void msg(uint8_t type, uint16_t body, uint8_t *buf) {
-    buf[0] = type;
-    memcpy(&buf[1], &body, sizeof(body));
-    uint8_t crc = crc4(&buf[0], MSG_SIZE);
-    buf[0] |= crc << 4;
+  void msg(uint8_t type, uint16_t body, uint8_t *lbuf) {
+    lbuf[0] = type;
+    memcpy(&lbuf[1], &body, sizeof(body));
+    uint8_t crc = crc4(&lbuf[0], MSG_SIZE);
+    lbuf[0] |= crc << 4;
   }
   void send_buffers(uint16_t time) {
     if (buf_msgs <= 0)

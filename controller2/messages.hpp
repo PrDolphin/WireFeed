@@ -10,8 +10,8 @@
 #define MSG_TIMERSTOPWATCH_STOP 4
 #define MSG_TIMERSTOPWATCH_START 5
 #define MSG_TIMERSTOPWATCH_TIMER_SECONDS 6
-// First message to be ignored by main controller and instead retransmitted to slaves
-#define MSG_FIRST_REDIRECT 3
+// First message to be retransmitted to slaves
+#define MSG_FIRST_REDIRECT 4
 #define MSG_SIZE 3
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -22,6 +22,7 @@
 #define STATE_ACK_AWAIT 0x8
 #define STATE_MARK_SENT_TIME 0x10
 
+#include <Arduino.h>
 #define TIME_IDLE_RECEIVE 3
 #define TIME_IDLE_SEND 1
 #define ACK_TIMEOUT 10

@@ -77,7 +77,7 @@ static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_
       motor2.target_speed = msg_body;
       break;
     case MSG_COEF_UPDATE:
-      motor2.set_coefficient(motor_coef(D2, R2, C2 + (int16_t)msg_body));
+      motor1.set_coefficient(motor_coef(D1, R1, C1 + (int16_t)msg_body));
       break;
     default: {
       if (msg_type < MSG_FIRST_REDIRECT)
@@ -89,9 +89,6 @@ static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_
     }
   }
 }
-
-uint8_t send_time = 12;
-uint8_t sent = 0;
 
 void loop() {
   uint8_t time = millis();

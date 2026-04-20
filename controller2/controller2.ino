@@ -15,11 +15,11 @@
 #define BUTTON_COEF_PLUS ARR_BUT5
 #define BUTTON_COEF_MINUS ARR_BUT6
 #define STARTUP_DELAY 100
+#define DISPLAY_REFRESH_INTERVAL 250
 
 uint16_t timer_starttime_sent = 1;
 uint16_t update_time = 0;
-bool timer_startvalue_displayed = false;
-uint16_t timer_startvalue_last_updated = 0;
+uint16_t display_refresh_time = 0;
 
 GyverTM1637 coef_disp(SOFTI2C_CLK, SOFTI2C_DIO);
 GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
@@ -35,6 +35,23 @@ void serial_clear(HardwareSerial &serial) {
   while(serial.available()) {
     serial.read();
   }
+}
+
+void display_time(uint16_t time) {
+  uint8_t data[4];
+  uint16_t temp;
+  data[3] = time % 10;
+  temp = time / 10;
+  data[2] = temp % 6;
+  temp /= 6;
+  data[1] = temp % 10;
+  temp /= 10;
+  data[0] = temp % 10;
+  for (uint8_t i = 0; i < sizeof(data); ++i) {
+    data[i] = digToHEX(data[i]);
+  }
+  data[1] |= 0x80; // Enable point
+  timer_disp.displayByte(data);
 }
 
 void setup() {
@@ -56,7 +73,7 @@ static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_
   switch (msg_type) {
     case MSG_TIMERSTOPWATCH_STOP:
       timerstopwatch.stop(msg_body);
-      timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
+      display_time(timerstopwatch.seconds);
       break;
     case MSG_TIMERSTOPWATCH_START:
       timerstopwatch.start(msg_body + time_diff);
@@ -64,15 +81,12 @@ static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_
     case MSG_TIMERSTOPWATCH_TIMER_SECONDS:
       if (msg_body == 0) {
         timerstopwatch.setmode_stopwatch();
-        timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
+        display_time(timerstopwatch.seconds);
       } else {
         cli();
         encoder_pos[ENCODER_CONNECTED] = msg_body;
         sei();
         timerstopwatch.setmode_timer(msg_body);
-        timer_startvalue_displayed = true;
-        timer_startvalue_last_updated = millis();
-        timer_disp.displayClock(msg_body / 60, msg_body % 60);
       }
     case MSG_COEF_UPDATE:
       coef.value = msg_body;
@@ -112,26 +126,21 @@ void loop() {
         msg_stream.msg_queue(MSG_TIMERSTOPWATCH_TIMER_SECONDS, 0);
       } 
       if (timer_starttime_sent != timer_starttime) {
-        timer_startvalue_displayed = true;
-        timer_startvalue_last_updated = time;
         timer_starttime_sent = timer_starttime;
-        timer_disp.displayClock(timer_starttime / 60, timer_starttime % 60);
-      } else {
-        timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
       }
+      display_time(timerstopwatch.seconds);
     }
   }
-  if (timer_startvalue_displayed) {
-    timerstopwatch.tick(time);
-    if (time - timer_startvalue_last_updated > SHOW_TIMERSTARTTIME_MS) {
-      timer_startvalue_displayed = false;
-      timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
-    }
-  } else if (timerstopwatch.tick(time)) {
-    timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
+  if (timerstopwatch.tick(time)) {
+    display_time(timerstopwatch.seconds);
   }
   if (coef.tick(time) == NUMBER_CHANGED) {
     msg_stream.msg_queue(MSG_COEF_UPDATE, coef.value);
+    coef_disp.displayInt(coef.value);
+  }
+  if (time - display_refresh_time >= DISPLAY_REFRESH_INTERVAL) {
+    display_refresh_time = time;
+    display_time(timerstopwatch.seconds);
     coef_disp.displayInt(coef.value);
   }
 }

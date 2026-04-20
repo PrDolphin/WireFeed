@@ -3,9 +3,10 @@
 #include "TimerStopwatch.hpp"
 
 #include <GyverTM1637.h>
+#include <EEPROM.h>
 
 #define ENCODER_CONNECTED 1
-#define ENCODER_SHIFT_COEF 10
+#define ENCODER_SHIFT_COEF 30
 #define POLL_INTERVAL 5
 #define BUTTON_ENCODER ENCODER_CONNECTED
 #define MOTORS_SWITCHON 5
@@ -15,10 +16,16 @@
 #define LED_SHORT 300
 #define LED_LONG 900
 #define STARTUP_DELAY 100
+#define DISPLAY_REFRESH_INTERVAL 250
+#define SPEED_EEPROM_OFFSET 0
+#define SPEED_SAVE_DELAY 1000
 
 int16_t motorspeed_sent = 0;
 uint16_t update_time = 0;
 uint16_t led_shutdown_time = 0;
+uint16_t display_refresh_time = 0;
+uint8_t speed_need_save = 0;
+uint16_t speed_save_time = 0;
 
 GyverTM1637 speed_disp(SOFTI2C_CLK, SOFTI2C_DIO);
 GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
@@ -35,6 +42,23 @@ void serial_clear(HardwareSerial &serial) {
   }
 }
 
+void display_time(uint16_t time) {
+  uint8_t data[4];
+  uint16_t temp;
+  data[3] = time % 10;
+  temp = time / 10;
+  data[2] = temp % 6;
+  temp /= 6;
+  data[1] = temp % 10;
+  temp /= 10;
+  data[0] = temp % 10;
+  for (uint8_t i = 0; i < sizeof(data); ++i) {
+    data[i] = digToHEX(data[i]);
+  }
+  data[1] |= 0x80; // Enable point
+  timer_disp.displayByte(data);
+}
+
 void setup() {
   pcb_init(ENCODER_CONNECTED + 1);
   Serial.begin(9600);
@@ -45,7 +69,13 @@ void setup() {
   speed_disp.brightness(7);
   timer_disp.clear();
   timer_disp.brightness(7);
-  timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
+  display_time(timerstopwatch.seconds);
+  uint16_t speed;
+  for (uint8_t i = 0; i < sizeof(speed); ++i)
+    speed |= (uint16_t)EEPROM.read(SPEED_EEPROM_OFFSET + i) << (i * 8);
+  cli();
+  encoder_pos[ENCODER_CONNECTED] = speed;
+  sei();
   delay(STARTUP_DELAY);
   serial_clear(Serial);
 }
@@ -62,7 +92,7 @@ static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_
       break;
     case MSG_TIMERSTOPWATCH_STOP:
       timerstopwatch.stop(msg_body);
-      timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
+      display_time(timerstopwatch.seconds);
       break;
     case MSG_TIMERSTOPWATCH_START:
       timerstopwatch.start(msg_body + time_diff);
@@ -72,7 +102,7 @@ static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_
         timerstopwatch.setmode_stopwatch();
       else
         timerstopwatch.setmode_timer(msg_body);
-      timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
+      display_time(timerstopwatch.seconds);
     default:
       break;
   }
@@ -107,6 +137,8 @@ void loop() {
         }
       }
       if (motorspeed != motorspeed_sent) {
+        speed_need_save = 1;
+        speed_save_time = time;
         motorspeed_sent = motorspeed;
         speed_disp.displayInt(motorspeed);
       }
@@ -126,11 +158,11 @@ void loop() {
       // Pressing timer reset button
       timerstopwatch.reset();
       msg_stream.msg_queue(MSG_TIMERSTOPWATCH_STOP, timerstopwatch.seconds);
-      timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
+      display_time(timerstopwatch.seconds);
     }
   }
   if (timerstopwatch.tick(time)) {
-    timer_disp.displayClock(timerstopwatch.seconds / 60, timerstopwatch.seconds % 60);
+    display_time(timerstopwatch.seconds);
     if (timerstopwatch.timer() && timerstopwatch.seconds <= 3) {
       digitalWrite(LED_PIN, 1);
       led_shutdown_time = time + ((timerstopwatch.seconds == 1) ? LED_LONG : LED_SHORT);
@@ -138,5 +170,17 @@ void loop() {
   }
   if (time - led_shutdown_time < 0x8000) {
     digitalWrite(LED_PIN, 0);
+  }
+  if (time - display_refresh_time >= DISPLAY_REFRESH_INTERVAL) {
+    display_refresh_time = time;
+    speed_disp.displayInt(motorspeed_sent);
+    display_time(timerstopwatch.seconds);
+  }
+  if (speed_need_save && time - speed_save_time >= SPEED_SAVE_DELAY) {
+    for (uint8_t i = 0; i < sizeof(motorspeed_sent); ++i) {
+      uint8_t byte = EEPROM.read(SPEED_EEPROM_OFFSET + i);
+      if (byte != motorspeed_sent >> (i * 8))
+        EEPROM.write(SPEED_EEPROM_OFFSET + i, (uint8_t)(motorspeed_sent >> (i * 8)));
+    }
   }
 }

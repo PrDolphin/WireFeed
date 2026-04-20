@@ -48,7 +48,7 @@ public:
   , flags{0}, check_time{0}, value{0}
   {
     for (uint8_t i = 0; i < sizeof(T); ++i) {
-      value |= (T)EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom) << (i * 8);
+      value |= (T)EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom + i) << (i * 8);
     }
     value = (value > limit) ? limit
       : (is_signed<T>::value && value < -limit) ? -limit :  value;
@@ -69,9 +69,9 @@ public:
         return 0;
       
       for (uint8_t i = 0; i < sizeof(T); ++i) {
-        uint8_t byte = EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom);
+        uint8_t byte = EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom + i);
         if (value >> (i * 8) != byte)
-          EEPROM.write(NUMBER_EEPROM_OFFSET + eeprom, value >> (i * 8));
+          EEPROM.write(NUMBER_EEPROM_OFFSET + eeprom + i, (uint8_t)(value >> (i * 8)));
       }
       flags &= ~NumberButtons<T>::WRITE;
       return NUMBER_WRITTEN;
