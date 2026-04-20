@@ -64,8 +64,8 @@ private:
     }
     if (buf_msgs > buf_pos) // Printing from cyclic array
       serial.write(&buf[(buf_pos + msgs_buffered - buf_msgs) * MSG_SIZE], (buf_msgs - buf_pos) * MSG_SIZE);
-    uint8_t start = (buf_pos > buf_msgs) ? (buf_pos - buf_msgs) * MSG_SIZE : 0;
-    serial.write(&buf[start], (buf_pos - start) * MSG_SIZE);
+    uint8_t start = (buf_pos > buf_msgs) ? (buf_pos - buf_msgs) : 0;
+    serial.write(&buf[start * MSG_SIZE], (buf_pos - start) * MSG_SIZE);
     state |= STATE_ACK_AWAIT;
     state &= ~STATE_IDLE_SEND;
     last_write_activity = time;

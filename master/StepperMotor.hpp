@@ -84,6 +84,8 @@ public:
   }
 
   void set_coefficient(uint32_t coef) {
+    if (coefficient == coef)
+      return;
     uint8_t sreg = SREG;
     cli();
     if (speed > 0)

@@ -48,11 +48,11 @@ private:
       serial.read();
     }
   }
-  void msg(uint8_t type, uint16_t body, uint8_t *buf) {
-    buf[0] = type;
-    memcpy(&buf[1], &body, sizeof(body));
-    uint8_t crc = crc4(&buf[0], MSG_SIZE);
-    buf[0] |= crc << 4;
+  void msg(uint8_t type, uint16_t body, uint8_t *lbuf) {
+    lbuf[0] = type;
+    memcpy(&lbuf[1], &body, sizeof(body));
+    uint8_t crc = crc4(&lbuf[0], MSG_SIZE);
+    lbuf[0] |= crc << 4;
   }
   void send_buffers(uint16_t time) {
     if (buf_msgs <= 0)
@@ -64,8 +64,8 @@ private:
     }
     if (buf_msgs > buf_pos) // Printing from cyclic array
       serial.write(&buf[(buf_pos + msgs_buffered - buf_msgs) * MSG_SIZE], (buf_msgs - buf_pos) * MSG_SIZE);
-    uint8_t start = (buf_pos > buf_msgs) ? (buf_pos - buf_msgs) * MSG_SIZE : 0;
-    serial.write(&buf[start], (buf_pos - start) * MSG_SIZE);
+    uint8_t start = (buf_pos > buf_msgs) ? (buf_pos - buf_msgs) : 0;
+    serial.write(&buf[start * MSG_SIZE], (buf_pos - start) * MSG_SIZE);
     state |= STATE_ACK_AWAIT;
     state &= ~STATE_IDLE_SEND;
     last_write_activity = time;
