@@ -101,6 +101,7 @@ void pcb_init(uint8_t flags) {
   memset(encoder_pos, 0, sizeof(encoder_pos));
   SREG = sreg;
   memset(analog_data, 0 ,sizeof(analog_data));
+  DDRB |= _BV(PWM1) | _BV(PWM2);
   PORTB |= BUTTON_ARRAY_PB_MASK;
   PORTC |= BUTTON_ARRAY_PC_MASK;
   PORTD |= _BV(ENCODER1_BUTTON_PIN) | _BV(ENCODER2_BUTTON_PIN);
