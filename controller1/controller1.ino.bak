@@ -1,0 +1,127 @@
+#include "common.h"
+#include "contpcb_lib.h"
+
+#include <ArduinoRS485.h>
+#include <ArduinoModbus.h>
+#include <GyverTM1637.h>
+
+#define ENCODER_CONNECTED 1
+#define ENCODER_SHIFT_COEF 30
+#define POLL_INTERVAL 5
+#define BUTTON_ENCODER ENCODER_CONNECTED
+#define MOTORS_SWITCHON 4
+#define BUTTON_TIMER_STARTSTOP 5
+#define BUTTON_TIMER_RESET 6
+#define LED_PIN PWM_PIN1
+#define LED_SHORT 300
+#define LED_LONG 900
+#define DISPLAY_REFRESH_INTERVAL 250
+#define SPEED_EEPROM_OFFSET 0
+#define SPEED_SAVE_DELAY 1000
+
+uint16_t last_displayed_time = 0;
+uint16_t update_time = 0;
+uint16_t led_shutdown_time = 0;
+uint16_t display_refresh_time = 0;
+
+GyverTM1637 speed_disp(SOFTI2C_CLK, SOFTI2C_DIO);
+GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
+
+void display_time(uint16_t time) {
+  uint8_t data[4];
+  uint16_t temp;
+  data[3] = time % 10;
+  temp = time / 10;
+  data[2] = temp % 6;
+  temp /= 6;
+  data[1] = temp % 10;
+  temp /= 10;
+  data[0] = temp % 10;
+  for (uint8_t i = 0; i < sizeof(data); ++i) {
+    data[i] = digToHEX(data[i]);
+  }
+  data[1] |= 0x80; // Enable point
+  timer_disp.displayByte(data);
+}
+
+void setup() {
+  pcb_init(ENCODER_CONNECTED + 1);
+  Serial.setTimeout(10);
+  RS485.setPins(1, REDE_PIN, -1);
+  ModbusRTUServer.begin(MODBUS_ADDRESS1, MODBUS_BAUDRATE);
+  ModbusRTUServer.configureCoils(0x00, MODBUS_COILS1);
+  ModbusRTUServer.configureHoldingRegisters(0x00, MODBUS_HREGS1);
+  speed_disp.clear();
+  speed_disp.brightness(7);
+  timer_disp.clear();
+  timer_disp.brightness(7);
+  ModbusRTUServer.holdingRegisterWrite(0, -1);
+  while (ModbusRTUServer.coilRead(MODBUS_COIL_CONTROLLER_INIT) == 0) {
+    ModbusRTUServer.poll();
+    speed_disp.displayInt((int)ModbusRTUServer.holdingRegisterRead(MODBUS_HREG_TIME));
+  }
+  uint16_t speed = ModbusRTUServer.holdingRegisterRead(MODBUS_HREG_SPEED);
+  cli();
+  encoder_pos[ENCODER_CONNECTED] = speed;
+  sei();
+  last_displayed_time = ModbusRTUServer.holdingRegisterRead(MODBUS_HREG_TIME);
+  display_time(last_displayed_time);
+}
+
+void loop() {
+  ModbusRTUServer.poll();
+  uint16_t time = millis();
+  if (time - update_time >= POLL_INTERVAL) {
+    update_time = time + POLL_INTERVAL;
+    uint8_t changed = buttons;
+    buttons_update();
+    changed ^= buttons;
+    cli();
+    uint16_t motorspeed = encoder_pos[ENCODER_CONNECTED];
+    sei();
+    if ((int16_t)motorspeed < 1) {
+      cli();
+      encoder_pos[ENCODER_CONNECTED] = 1;
+      sei();
+      motorspeed = 1;
+    }
+    if (motorspeed != ModbusRTUServer.holdingRegisterRead(MODBUS_HREG_SPEED)) {
+      speed_disp.displayInt(motorspeed);
+      ModbusRTUServer.holdingRegisterWrite(MODBUS_HREG_SPEED, motorspeed);
+    }
+    if ((changed >> (BUTTON_ENCODER)) & 0x1) {
+      encoder_step_multiplier[ENCODER_CONNECTED] = ((buttons >> (BUTTON_ENCODER)) & 0x1) ? ENCODER_SHIFT_COEF : 1;
+    }
+    ModbusRTUServer.coilWrite(MODBUS_COIL_MOTOR_ENABLED, (buttons >> (MOTORS_SWITCHON)) & 0x1);
+    if ((((changed & buttons) >> BUTTON_TIMER_STARTSTOP) & 0x1)) {
+      // Pressing timer start-stop button
+      if (ModbusRTUServer.coilRead(MODBUS_COIL_TIMER_ENABLED)) {
+        ModbusRTUServer.coilWrite(MODBUS_COIL_TIMER_ENABLED, 0);
+      } else {
+        ModbusRTUServer.coilWrite(MODBUS_COIL_TIMER_ENABLED, 1);
+      }
+    }
+    if ((((changed & buttons) >> BUTTON_TIMER_RESET) & 0x1)) {
+      ModbusRTUServer.coilWrite(MODBUS_COIL_TIMER_ENABLED, 0);
+      ModbusRTUServer.coilWrite(MODBUS_COIL_TIMER_RESET, 1);
+    }
+  }
+  if (last_displayed_time != ModbusRTUServer.holdingRegisterRead(MODBUS_HREG_TIME)) {
+    uint16_t displayed_time = ModbusRTUServer.holdingRegisterRead(MODBUS_HREG_TIME);
+    display_time(displayed_time);
+    if (ModbusRTUServer.coilRead(MODBUS_COIL_TIMER_ENABLED) &&
+        last_displayed_time > displayed_time && displayed_time <= 3) {
+      digitalWrite(LED_PIN, 1);
+      led_shutdown_time = time + ((displayed_time == 1) ? LED_LONG : LED_SHORT);
+    }
+    last_displayed_time = displayed_time;
+  }
+  if (time - led_shutdown_time < 0x8000) {
+    digitalWrite(LED_PIN, 0);
+  }
+  if (time - display_refresh_time >= DISPLAY_REFRESH_INTERVAL) {
+    display_refresh_time = time;
+    speed_disp.displayInt(ModbusRTUServer.holdingRegisterRead(MODBUS_HREG_SPEED));
+    display_time(ModbusRTUServer.holdingRegisterRead(MODBUS_HREG_TIME));
+  }
+}

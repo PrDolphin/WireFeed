@@ -1,9 +1,9 @@
-#include "messages.hpp"
+#include "common.h"
 #include "contpcb_lib.h"
-#include "TimerStopwatch.hpp"
 
 #include "NumberButtons.hpp"
 
+#include <ModbusSerial.h>
 #include <GyverTM1637.h>
 
 #define ENCODER_CONNECTED 1
@@ -11,31 +11,22 @@
 #define POLL_INTERVAL 5
 #define SHOW_TIMERSTARTTIME_MS 3000
 #define BUTTON_ENCODER ENCODER_CONNECTED
-#define TIMER_STOPWATCH_SELECTOR 5
-#define BUTTON_COEF_PLUS ARR_BUT5
-#define BUTTON_COEF_MINUS ARR_BUT6
+#define TIMER_STOPWATCH_SELECTOR 4
+#define BUTTON_COEF_PLUS ARR_BUT4
+#define BUTTON_COEF_MINUS ARR_BUT5
 #define STARTUP_DELAY 100
 #define DISPLAY_REFRESH_INTERVAL 250
 
-uint16_t timer_starttime_sent = 1;
 uint16_t update_time = 0;
 uint16_t display_refresh_time = 0;
+uint16_t last_displayed_time = 0;
 
 GyverTM1637 coef_disp(SOFTI2C_CLK, SOFTI2C_DIO);
 GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
 
-TimerStopwatch<uint16_t> timerstopwatch;
-NumberButtons<int16_t> coef(BUTTON_COEF_PLUS, BUTTON_COEF_MINUS, 4, 999);
+NumberButtons<int16_t> coef(BUTTON_COEF_PLUS, BUTTON_COEF_MINUS, 999);
 
-static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_diff);
-
-MessageTransceiver<8> msg_stream(Serial, process_messages);
-
-void serial_clear(HardwareSerial &serial) {
-  while(serial.available()) {
-    serial.read();
-  }
-}
+ModbusSerial mb (Serial, MODBUS_ADDRESS2, REDE_PIN);
 
 void display_time(uint16_t time) {
   uint8_t data[4];
@@ -56,91 +47,73 @@ void display_time(uint16_t time) {
 
 void setup() {
   pcb_init(ENCODER_CONNECTED + 1);
-  Serial.begin(9600);
+  Serial.begin(MODBUS_BAUDRATE);
   Serial.setTimeout(10);
-  update_time = millis();
+  mb.config(MODBUS_BAUDRATE);
+  for (uint8_t i = 0; i < MODBUS_COILS2; ++i)
+    mb.addCoil(i, 0);
+  for (uint8_t i = 0; i < MODBUS_HREGS2; ++i)
+    mb.addHreg(i, 0);
   coef_disp.clear();
   coef_disp.brightness(7);
-  coef_disp.displayInt(coef.value);
   timer_disp.clear();
   timer_disp.brightness(7);
-  buttons_update();
-  delay(STARTUP_DELAY);
-  serial_clear(Serial);
-}
-
-static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_diff) {
-  switch (msg_type) {
-    case MSG_TIMERSTOPWATCH_STOP:
-      timerstopwatch.stop(msg_body);
-      display_time(timerstopwatch.seconds);
-      break;
-    case MSG_TIMERSTOPWATCH_START:
-      timerstopwatch.start(msg_body + time_diff);
-      break;
-    case MSG_TIMERSTOPWATCH_TIMER_SECONDS:
-      if (msg_body == 0) {
-        timerstopwatch.setmode_stopwatch();
-        display_time(timerstopwatch.seconds);
-      } else {
-        cli();
-        encoder_pos[ENCODER_CONNECTED] = msg_body;
-        sei();
-        timerstopwatch.setmode_timer(msg_body);
-      }
-    case MSG_COEF_UPDATE:
-      coef.value = msg_body;
-      coef_disp.displayInt(msg_body);
-      break;
-    default:
-      break;
+  while (mb.coil(MODBUS_COIL_CONTROLLER_INIT) == 0) {
+    mb.task();
   }
+  last_displayed_time = mb.hreg(MODBUS_HREG_TIME);
+  display_time(last_displayed_time);
+  coef.value = mb.hreg(MODBUS_HREG_COEF);
+  coef_disp.displayInt(coef.value);
 }
 
 void loop() {
-  msg_stream.msg_process();
+  mb.task();
   uint16_t time = millis();
   if (time - update_time >= POLL_INTERVAL) {
     update_time = time + POLL_INTERVAL;
     uint8_t changed = buttons;
     buttons_update();
     changed ^= buttons;
-    cli();
-    uint16_t timer_starttime = encoder_pos[ENCODER_CONNECTED];
-    sei();
-    if (timer_starttime < 1 || timer_starttime > 5999) {
-      timer_starttime = constrain((int16_t)timer_starttime, 1, 5999);
-      cli();
-      encoder_pos[ENCODER_CONNECTED] = timer_starttime;
-      sei();
+    if ((buttons >> TIMER_STOPWATCH_SELECTOR) & 0x1) {
+      if ((changed >> TIMER_STOPWATCH_SELECTOR) & 0x1) {
+        uint16_t timer_starttime = mb.hreg(MODBUS_HREG_TIMER_STARTTIME);
+        cli();
+        encoder_pos[ENCODER_CONNECTED] = timer_starttime;
+        sei();
+      } else {
+        cli();
+        uint16_t timer_starttime = encoder_pos[ENCODER_CONNECTED];
+        sei();
+        if (timer_starttime < 1 || timer_starttime > 5999) {
+          timer_starttime = constrain((int16_t)timer_starttime, 1, 5999);
+          cli();
+          encoder_pos[ENCODER_CONNECTED] = timer_starttime;
+          sei();
+        }
+        mb.setHreg(MODBUS_HREG_TIMER_STARTTIME, timer_starttime);
+      }
     }
     if ((changed >> (BUTTON_ENCODER)) & 0x1) {
       encoder_step_multiplier[ENCODER_CONNECTED] = ((buttons >> (BUTTON_ENCODER)) & 0x1) ? ENCODER_SHIFT_COEF : 1;
     }
-    if (((changed >> TIMER_STOPWATCH_SELECTOR) & 0x1) || timer_starttime_sent != timer_starttime) {
-      if ((buttons >> TIMER_STOPWATCH_SELECTOR) & 0x1) {
-        timerstopwatch.setmode_timer(timer_starttime);
-        msg_stream.msg_queue(MSG_TIMERSTOPWATCH_TIMER_SECONDS, timer_starttime);
-      } else if ((changed >> TIMER_STOPWATCH_SELECTOR) & 0x1) {
-        timerstopwatch.setmode_stopwatch();
-        msg_stream.msg_queue(MSG_TIMERSTOPWATCH_TIMER_SECONDS, 0);
-      } 
-      if (timer_starttime_sent != timer_starttime) {
-        timer_starttime_sent = timer_starttime;
-      }
-      display_time(timerstopwatch.seconds);
-    }
+    mb.setCoil(MODBUS_COIL_TIMER_STOPWATCH_SELECT, (buttons >> TIMER_STOPWATCH_SELECTOR) & 0x1);
+
   }
-  if (timerstopwatch.tick(time)) {
-    display_time(timerstopwatch.seconds);
+  if (last_displayed_time != mb.hreg(MODBUS_HREG_TIME)) {
+    last_displayed_time = mb.hreg(MODBUS_HREG_TIME);
+    display_time(last_displayed_time);
   }
   if (coef.tick(time) == NUMBER_CHANGED) {
-    msg_stream.msg_queue(MSG_COEF_UPDATE, coef.value);
-    coef_disp.displayInt(coef.value);
+    mb.setHreg(MODBUS_HREG_COEF, coef.value);
+    coef_disp.displayInt(mb.hreg(MODBUS_HREG_COEF));
+  } else if (coef.value != mb.hreg(MODBUS_HREG_COEF)) {
+    coef.value = mb.hreg(MODBUS_HREG_COEF);
+    coef_disp.displayInt(mb.hreg(MODBUS_HREG_COEF));
   }
   if (time - display_refresh_time >= DISPLAY_REFRESH_INTERVAL) {
     display_refresh_time = time;
-    display_time(timerstopwatch.seconds);
-    coef_disp.displayInt(coef.value);
+    display_time(last_displayed_time);
+    coef_disp.displayInt(mb.hreg(MODBUS_HREG_COEF));
   }
 }

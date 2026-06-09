@@ -1,46 +1,33 @@
-#include "messages.hpp"
+#include "common.h"
 #include "contpcb_lib.h"
-#include "TimerStopwatch.hpp"
 
+#include <ModbusSerial.h>
 #include <GyverTM1637.h>
-#include <EEPROM.h>
 
 #define ENCODER_CONNECTED 1
 #define ENCODER_SHIFT_COEF 30
 #define POLL_INTERVAL 5
 #define BUTTON_ENCODER ENCODER_CONNECTED
-#define MOTORS_SWITCHON 5
-#define BUTTON_TIMER_STARTSTOP 6
-#define BUTTON_TIMER_RESET 7
+#define MOTORS_SWITCHON 4
+#define BUTTON_TIMER_STARTSTOP 5
+#define BUTTON_TIMER_RESET 6
 #define LED_PIN PWM_PIN1
 #define LED_SHORT 300
 #define LED_LONG 900
-#define STARTUP_DELAY 100
 #define DISPLAY_REFRESH_INTERVAL 250
 #define SPEED_EEPROM_OFFSET 0
 #define SPEED_SAVE_DELAY 1000
 
-int16_t motorspeed_sent = 0;
+uint16_t last_displayed_time = 0;
 uint16_t update_time = 0;
 uint16_t led_shutdown_time = 0;
 uint16_t display_refresh_time = 0;
-uint8_t speed_need_save = 0;
-uint16_t speed_save_time = 0;
+uint16_t prevmotorspeed;
 
 GyverTM1637 speed_disp(SOFTI2C_CLK, SOFTI2C_DIO);
 GyverTM1637 timer_disp(SOFTI2C_CLK2, SOFTI2C_DIO);
 
-TimerStopwatch<uint16_t> timerstopwatch;
-
-static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_diff);
-
-MessageTransceiver<8> msg_stream(Serial, process_messages);
-
-void serial_clear(HardwareSerial &serial) {
-  while(serial.available()) {
-    serial.read();
-  }
-}
+ModbusSerial mb (Serial, MODBUS_ADDRESS1, REDE_PIN);
 
 void display_time(uint16_t time) {
   uint8_t data[4];
@@ -61,55 +48,33 @@ void display_time(uint16_t time) {
 
 void setup() {
   pcb_init(ENCODER_CONNECTED + 1);
-  Serial.begin(9600);
+  Serial.begin(MODBUS_BAUDRATE);
   Serial.setTimeout(10);
-  update_time = millis();
-  buttons_update();
+  mb.config(MODBUS_BAUDRATE);
+  for (uint8_t i = 0; i < MODBUS_COILS1; ++i)
+    mb.addCoil(i, 0);
+  for (uint8_t i = 0; i < MODBUS_HREGS1; ++i)
+    mb.addHreg(i, 0);
   speed_disp.clear();
   speed_disp.brightness(7);
   timer_disp.clear();
   timer_disp.brightness(7);
-  display_time(timerstopwatch.seconds);
-  uint16_t speed;
-  for (uint8_t i = 0; i < sizeof(speed); ++i)
-    speed |= (uint16_t)EEPROM.read(SPEED_EEPROM_OFFSET + i) << (i * 8);
+  mb.setHreg(0, -1);
+  while (mb.coil(MODBUS_COIL_CONTROLLER_INIT) == 0) {
+    mb.task();
+    speed_disp.displayInt((int)mb.hreg(MODBUS_HREG_TIME));
+  }
+  uint16_t speed = mb.hreg(MODBUS_HREG_SPEED);
   cli();
   encoder_pos[ENCODER_CONNECTED] = speed;
   sei();
-  delay(STARTUP_DELAY);
-  serial_clear(Serial);
-}
-
-static void process_messages(uint8_t msg_type, uint16_t msg_body, uint16_t time_diff) {
-  switch (msg_type) {
-    case MSG_MOTORS_SET_SPEED:
-      if (msg_body == 0)
-        break; // we cannot programmatically move the switch
-      cli();
-      encoder_pos[ENCODER_CONNECTED] = msg_body;
-      sei();
-      speed_disp.displayInt(msg_body);
-      break;
-    case MSG_TIMERSTOPWATCH_STOP:
-      timerstopwatch.stop(msg_body);
-      display_time(timerstopwatch.seconds);
-      break;
-    case MSG_TIMERSTOPWATCH_START:
-      timerstopwatch.start(msg_body + time_diff);
-      break;
-    case MSG_TIMERSTOPWATCH_TIMER_SECONDS:
-      if (msg_body == 0)
-        timerstopwatch.setmode_stopwatch();
-      else
-        timerstopwatch.setmode_timer(msg_body);
-      display_time(timerstopwatch.seconds);
-    default:
-      break;
-  }
+  prevmotorspeed = speed;
+  last_displayed_time = mb.hreg(MODBUS_HREG_TIME);
+  display_time(last_displayed_time);
 }
 
 void loop() {
-  msg_stream.msg_process();
+  mb.task();
   uint16_t time = millis();
   if (time - update_time >= POLL_INTERVAL) {
     update_time = time + POLL_INTERVAL;
@@ -125,62 +90,51 @@ void loop() {
       sei();
       motorspeed = 1;
     }
+    if (motorspeed != prevmotorspeed) {
+      speed_disp.displayInt(motorspeed);
+      prevmotorspeed = motorspeed;
+      mb.setHreg(MODBUS_HREG_SPEED, motorspeed);
+    } else if (motorspeed != mb.hreg(MODBUS_HREG_SPEED)) {
+      motorspeed = mb.hreg(MODBUS_HREG_SPEED);
+      speed_disp.displayInt(motorspeed);
+      cli();
+      encoder_pos[ENCODER_CONNECTED] = motorspeed;
+      sei();
+      prevmotorspeed = motorspeed;
+    }
     if ((changed >> (BUTTON_ENCODER)) & 0x1) {
       encoder_step_multiplier[ENCODER_CONNECTED] = ((buttons >> (BUTTON_ENCODER)) & 0x1) ? ENCODER_SHIFT_COEF : 1;
     }
-    if ((changed >> MOTORS_SWITCHON) & 0x1 || motorspeed != motorspeed_sent) {
-      if ((buttons >> (MOTORS_SWITCHON)) & 0x1) {
-        msg_stream.msg_queue(MSG_MOTORS_SET_SPEED, motorspeed);
-      } else {
-        if ((changed >> MOTORS_SWITCHON) & 0x1) {
-          msg_stream.msg_queue(MSG_MOTORS_SET_SPEED, 0);
-        }
-      }
-      if (motorspeed != motorspeed_sent) {
-        speed_need_save = 1;
-        speed_save_time = time;
-        motorspeed_sent = motorspeed;
-        speed_disp.displayInt(motorspeed);
-      }
-    }
+    mb.setCoil(MODBUS_COIL_MOTOR_ENABLED, (buttons >> (MOTORS_SWITCHON)) & 0x1);
     if ((((changed & buttons) >> BUTTON_TIMER_STARTSTOP) & 0x1)) {
       // Pressing timer start-stop button
-      if (timerstopwatch.ticking()) {
-        timerstopwatch.stop();
-        msg_stream.msg_queue(MSG_TIMERSTOPWATCH_STOP, timerstopwatch.seconds);
+      if (mb.coil(MODBUS_COIL_TIMER_ENABLED)) {
+        mb.setCoil(MODBUS_COIL_TIMER_ENABLED, 0);
       } else {
-        timerstopwatch.start(time);
-        msg_stream.msg_queue(MSG_TIMERSTOPWATCH_START, time);
-        msg_stream.msg_mark_time();
+        mb.setCoil(MODBUS_COIL_TIMER_ENABLED, 1);
       }
     }
     if ((((changed & buttons) >> BUTTON_TIMER_RESET) & 0x1)) {
-      // Pressing timer reset button
-      timerstopwatch.reset();
-      msg_stream.msg_queue(MSG_TIMERSTOPWATCH_STOP, timerstopwatch.seconds);
-      display_time(timerstopwatch.seconds);
+      mb.setCoil(MODBUS_COIL_TIMER_ENABLED, 0);
+      mb.setCoil(MODBUS_COIL_TIMER_RESET, 1);
     }
   }
-  if (timerstopwatch.tick(time)) {
-    display_time(timerstopwatch.seconds);
-    if (timerstopwatch.timer() && timerstopwatch.seconds <= 3) {
+  if (last_displayed_time != mb.hreg(MODBUS_HREG_TIME)) {
+    uint16_t displayed_time = mb.hreg(MODBUS_HREG_TIME);
+    display_time(displayed_time);
+    if (mb.coil(MODBUS_COIL_TIMER_ENABLED) &&
+        last_displayed_time > displayed_time && displayed_time <= 3) {
       digitalWrite(LED_PIN, 1);
-      led_shutdown_time = time + ((timerstopwatch.seconds == 1) ? LED_LONG : LED_SHORT);
+      led_shutdown_time = time + ((displayed_time == 1) ? LED_LONG : LED_SHORT);
     }
+    last_displayed_time = displayed_time;
   }
   if (time - led_shutdown_time < 0x8000) {
     digitalWrite(LED_PIN, 0);
   }
   if (time - display_refresh_time >= DISPLAY_REFRESH_INTERVAL) {
     display_refresh_time = time;
-    speed_disp.displayInt(motorspeed_sent);
-    display_time(timerstopwatch.seconds);
-  }
-  if (speed_need_save && time - speed_save_time >= SPEED_SAVE_DELAY) {
-    for (uint8_t i = 0; i < sizeof(motorspeed_sent); ++i) {
-      uint8_t byte = EEPROM.read(SPEED_EEPROM_OFFSET + i);
-      if (byte != motorspeed_sent >> (i * 8))
-        EEPROM.write(SPEED_EEPROM_OFFSET + i, (uint8_t)(motorspeed_sent >> (i * 8)));
-    }
+    speed_disp.displayInt(mb.hreg(MODBUS_HREG_SPEED));
+    display_time(mb.hreg(MODBUS_HREG_TIME));
   }
 }

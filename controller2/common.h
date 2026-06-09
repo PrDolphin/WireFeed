@@ -1,0 +1,27 @@
+#ifndef COMMON_H
+#define COMMON_H
+
+#define MODBUS_ADDRESS1 0x1
+#define MODBUS_ADDRESS2 0x2
+#define MODBUS_COILS1 5
+#define MODBUS_COILS2 3
+#define MODBUS_COIL_CONTROLLER_INIT 0
+// controller 1
+#define MODBUS_COIL_MOTOR_ENABLED 1
+#define MODBUS_COIL_TIMER_ENABLED 2
+#define MODBUS_COIL_TIMER_RESET 3
+// controller 2
+#define MODBUS_COIL_TIMER_STOPWATCH_SELECT 1
+
+#define MODBUS_HREGS1 2
+#define MODBUS_HREGS2 3
+#define MODBUS_HREG_TIME 0
+// controller 1
+#define MODBUS_HREG_SPEED 1
+// controller 2
+#define MODBUS_HREG_COEF 1
+#define MODBUS_HREG_TIMER_STARTTIME 2
+
+#define MODBUS_BAUDRATE 115200
+
+#endif // COMMON_H

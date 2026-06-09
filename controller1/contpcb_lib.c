@@ -21,7 +21,7 @@ uint16_t analog_data[2] = {0};
 volatile int16_t encoder_pos[2] = {0};
 uint8_t encoder_step_multiplier[2] = {1, 1};
 uint8_t buttons = 0;
-uint8_t buttons_debounce[8];
+uint8_t buttons_debounce[7];
 
 ISR(INT0_vect) {
   encoder_pos[0] += (((PIND >> (ENCODER1_DIR_PIN - 1)) & 2) - 1) * encoder_step_multiplier[0];
@@ -32,8 +32,8 @@ ISR(INT1_vect) {
 }
 
 void buttons_update() {
-  uint8_t newbuttons = (~PIND >> (ENCODER1_BUTTON_PIN) & 0x3) | (~PINB >> (3 - 2) & 0xC) | (~PINC & 0xF) << 4;
-  for (uint8_t i = 0; i < 8; ++i) {
+  uint8_t newbuttons = (~PIND >> (ENCODER1_BUTTON_PIN) & 0x3) | (~PINB >> (3 - 2) & 0xC) | (~PINC & 0x7) << 4;
+  for (uint8_t i = 0; i < sizeof(buttons_debounce); ++i) {
     buttons_debounce[i] = (buttons_debounce[i] << 1) | ((newbuttons >> i) & 1);
     if (buttons_debounce[i] == 0)
       buttons &= ~(1 << i);
@@ -104,11 +104,15 @@ void pcb_init(uint8_t flags) {
   DDRB |= _BV(PWM1) | _BV(PWM2);
   PORTB |= BUTTON_ARRAY_PB_MASK;
   PORTC |= BUTTON_ARRAY_PC_MASK;
-  PORTD |= _BV(ENCODER1_BUTTON_PIN) | _BV(ENCODER2_BUTTON_PIN);
+  PORTD |= _BV(ENCODER1_BUTTON_PIN) | _BV(ENCODER2_BUTTON_PIN) | _BV(2) | _BV(3);
   // INT0 and INT1
   EICRA = (_BV(ISC11) | _BV(ISC01));
   if (flags & ENCODER1_CONNECTED)
     EIMSK |= (_BV(INT0));
   if (flags & ENCODER2_CONNECTED)
     EIMSK |= (_BV(INT1));
+  buttons = (~PIND >> (ENCODER1_BUTTON_PIN) & 0x3) | (~PINB >> (3 - 2) & 0xC) | (~PINC & 0xF) << 4;
+  for (uint8_t i = 0; i < 8; ++i) {
+    buttons_debounce[i] = -((buttons >> i) & 1);
+  }
 }

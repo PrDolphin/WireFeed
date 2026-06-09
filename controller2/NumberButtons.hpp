@@ -15,7 +15,7 @@
 #endif // NUMBER_EEPROM_OFFSET
 
 #define NUMBER_CHANGED 1
-#define NUMBER_WRITTEN 2
+#define NUMBER_READY 2
 
 #include <Arduino.h>
 #include <inttypes.h>
@@ -34,7 +34,6 @@ private:
     SCROLLING = 0x1,
     WRITE = 0x2
   };
-  uint8_t eeprom;
   uint8_t flags;
   uint16_t check_time;
   uint16_t scroll_write_time;
@@ -43,16 +42,9 @@ public:
   T value;
   T limit;
   
-  NumberButtons (uint8_t add_pin, uint8_t sub_pin, uint8_t eeprom_address, T sym_limit)
-  : pins{add_pin, sub_pin}, eeprom{eeprom_address}, limit{sym_limit}
-  , flags{0}, check_time{0}, value{0}
-  {
-    for (uint8_t i = 0; i < sizeof(T); ++i) {
-      value |= (T)EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom + i) << (i * 8);
-    }
-    value = (value > limit) ? limit
-      : (is_signed<T>::value && value < -limit) ? -limit :  value;
-  };
+  NumberButtons (uint8_t add_pin, uint8_t sub_pin, T sym_limit)
+  : pins{add_pin, sub_pin}, limit{sym_limit}
+  , flags{0}, check_time{0}, value{0} {};
   
   uint8_t tick (uint16_t time) {
     if (time - check_time >= 0x8000) {
@@ -68,13 +60,8 @@ public:
       if ((flags & NumberButtons<T>::WRITE) == 0 || time - scroll_write_time >= 0x8000)
         return 0;
       
-      for (uint8_t i = 0; i < sizeof(T); ++i) {
-        uint8_t byte = EEPROM.read(NUMBER_EEPROM_OFFSET + eeprom + i);
-        if (value >> (i * 8) != byte)
-          EEPROM.write(NUMBER_EEPROM_OFFSET + eeprom + i, (uint8_t)(value >> (i * 8)));
-      }
       flags &= ~NumberButtons<T>::WRITE;
-      return NUMBER_WRITTEN;
+      return NUMBER_READY;
     }
     if ((flags & NumberButtons<T>::SCROLLING) && time - scroll_write_time >= 0x8000)
       return 0;

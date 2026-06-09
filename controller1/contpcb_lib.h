@@ -11,7 +11,7 @@
 #define ARR_BUT3   A0
 #define ARR_BUT4   A1
 #define ARR_BUT5   A2
-#define ARR_BUT6   A3
+#define REDE_PIN A3
 
 #define PWM_PIN1 9
 #define PWM_PIN2 10
