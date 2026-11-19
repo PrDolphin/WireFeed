@@ -247,12 +247,11 @@ AT25_Status AT25DMA_Update(AT25DMA_HandleTypeDef *dev, uint16_t addr, const uint
    The user application should call HAL SPI callbacks and route them to these functions
    from their global HAL callbacks, e.g.:
 
-   void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) { AT25DMA_SPI_TxCpltCallback(hspi); }
-   void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) { AT25DMA_SPI_RxCpltCallback(hspi); }
-   void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) { AT25DMA_SPI_TxRxCpltCallback(hspi); }
+   void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) { AT25DMA_SPI_TxCpltCallback(dev); }
+   void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) { AT25DMA_SPI_RxCpltCallback(dev); }
+   void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) { AT25DMA_SPI_TxRxCpltCallback(dev); }
 
-   The functions below check hspi pointer match and set flags.
-   To support multiple devices, compare hspi to each device instance or adapt callbacks to call device-specific handlers.
+   To support multiple devices, adapt callbacks to call device-specific handlers.
 */
 
 /* Callbacks called by user HAL wrappers */

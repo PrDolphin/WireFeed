@@ -1,0 +1,98 @@
+{
+  "version": 2,
+  "modbuxVersion": "2.3.0",
+  "name": "Controllers",
+  "littleEndian": true,
+  "serverRegistersPerUnit": {
+    "1": {
+      "coils": {
+        "0": {
+          "value": false,
+          "comment": "Controller_init"
+        },
+        "1": {
+          "value": false,
+          "comment": "Motor_enabled"
+        },
+        "2": {
+          "value": false,
+          "comment": "Timer_enabled"
+        },
+        "3": {
+          "value": false,
+          "comment": "Timer_reset"
+        }
+      },
+      "discrete_inputs": {},
+      "input_registers": {},
+      "holding_registers": {
+        "0": {
+          "value": 0,
+          "params": {
+            "address": 0,
+            "dataType": "int16",
+            "comment": "Time",
+            "registerType": "holding_registers",
+            "value": 0
+          }
+        },
+        "1": {
+          "value": 0,
+          "params": {
+            "address": 1,
+            "dataType": "int16",
+            "comment": "Speed",
+            "registerType": "holding_registers",
+            "value": 0
+          }
+        }
+      }
+    },
+    "2": {
+      "coils": {
+        "0": {
+          "value": false,
+          "comment": "Controller_init"
+        },
+        "1": {
+          "value": false,
+          "comment": "Timer_stopwatch_select"
+        }
+      },
+      "discrete_inputs": {},
+      "input_registers": {},
+      "holding_registers": {
+        "0": {
+          "value": 0,
+          "params": {
+            "address": 0,
+            "dataType": "int16",
+            "comment": "Time",
+            "registerType": "holding_registers",
+            "value": 0
+          }
+        },
+        "1": {
+          "value": 0,
+          "params": {
+            "address": 1,
+            "dataType": "int16",
+            "comment": "Coef",
+            "registerType": "holding_registers",
+            "value": 0
+          }
+        },
+        "2": {
+          "value": 0,
+          "params": {
+            "address": 2,
+            "dataType": "int16",
+            "comment": "Timer_starttime",
+            "registerType": "holding_registers",
+            "value": 0
+          }
+        }
+      }
+    }
+  }
+}

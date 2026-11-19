@@ -66,10 +66,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define MOTORS_ENA_Pin GPIO_PIN_13
 #define MOTORS_ENA_GPIO_Port GPIOC
+#define USART2_DIR_Pin GPIO_PIN_3
+#define USART2_DIR_GPIO_Port GPIOA
 #define SPI1_CS_Flash_Pin GPIO_PIN_4
 #define SPI1_CS_Flash_GPIO_Port GPIOA
-#define USART2_DIR_Pin GPIO_PIN_2
-#define USART2_DIR_GPIO_Port GPIOB
 #define BUTTON1_Pin GPIO_PIN_12
 #define BUTTON1_GPIO_Port GPIOB
 #define BUTTON2_Pin GPIO_PIN_13

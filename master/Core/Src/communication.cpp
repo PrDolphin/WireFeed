@@ -15,26 +15,23 @@ extern "C" {
 #define WRITE_MINDELAY 10000
 
 #define VAR_SPEED 0
-#define VAR_COEF 1
+#define VAR_OFFSET 1
 #define VAR_TIMERSTARTTIME 2
 
 #define EEPROM_START_ADDRESS 0x0
 
 #define SLAVE_ADDRESS 0x21
 #define SLAVE_COIL_MANAGED 0x1
-#define SLAVE_COIL_MOTOR_ENABLED 0x2
 #define MANAGED_MODE_EXPIRES 10000
 
-static uint16_t motors_target_speed = 1;
-static int16_t coef_offset = 0;
+extern "C" uint16_t motors_target_speed = 1;
+extern "C" int16_t  speed_offset = 0;
 static uint16_t timer_starttime = 1;
 static uint16_t last_var_update_time = 0;
 static uint8_t dirty_vars = 0;
-static bool motor_enabled = false;
-static uint8_t managed_mode = false;
-uint32_t managed_mode_checktime = 0;
-static uint16_t hregs[2] = {0};
-static uint16_t coils = 0;
+extern "C" bool motor_enabled = false;
+extern "C" uint8_t managed_mode = false;
+static volatile uint16_t hregs[2] = {0};
 
 TimerStopwatch<uint16_t> timerstopwatch{};
 
@@ -59,9 +56,7 @@ modbusHandler_t mb_slave{
   .u16regs = NULL,
   .u16timeOut = TIMEOUT_MODBUS,
   .u16regsize = 0,
-  .u16coils = &coils,
-  .u16coilsNregs = 2,
-  .u16holdingRegs = hregs,
+  .u16holdingRegs = (uint16_t*)hregs,
   .u16holdingRegsNregs = sizeof(hregs)/sizeof(hregs[0]),
   .xTypeHW = USART_HW_DMA,
 };
@@ -172,7 +167,6 @@ static uint32_t processController1() {
     dirty_vars = 1;
   }
   motor_enabled = ISFLAG(coils, MODBUS_COIL_MOTOR_ENABLED);
-  setSpeed((motor_enabled) ? motors_target_speed : 0);
   return 0;
 MB_ERROR:
   return status;
@@ -190,7 +184,7 @@ static uint32_t processController2() {
   }));
   // Initialize new controller
   if (NOTFLAG(coils, MODBUS_COIL_CONTROLLER_INIT)) {
-    uint16_t registers[MODBUS_HREGS2] = {timerstopwatch.seconds, (uint16_t)coef_offset, timer_starttime};
+    uint16_t registers[MODBUS_HREGS2] = {timerstopwatch.seconds, (uint16_t)speed_offset, timer_starttime};
     MB_ERR(ModbusQueryV2(&mb_master, modbus_t{
       .u8id = MODBUS_ADDRESS2,
       .u8fct = MB_FC_WRITE_MULTIPLE_REGISTERS,
@@ -212,11 +206,11 @@ static uint32_t processController2() {
   uint16_t registers[MODBUS_HREGS2];
   if (managed_mode) {
     MB_ERR(ModbusQueryV2(&mb_master, modbus_t{
-      .u8id = MODBUS_ADDRESS1,
+      .u8id = MODBUS_ADDRESS2,
       .u8fct = MB_FC_WRITE_REGISTER,
       .u16RegAdd = MODBUS_HREG_COEF,
       .u16CoilsNo = 1,
-      .u16reg = (uint16_t*)&coef_offset
+      .u16reg = (uint16_t*)&speed_offset
     }));
     MB_ERR(ModbusQueryV2(&mb_master, modbus_t{
       .u8id = MODBUS_ADDRESS2,
@@ -225,7 +219,7 @@ static uint32_t processController2() {
       .u16CoilsNo = 1,
       .u16reg = registers + MODBUS_HREG_TIMER_STARTTIME
     }));
-    registers[MODBUS_HREG_COEF] = coef_offset;
+    registers[MODBUS_HREG_COEF] = speed_offset;
   } else {
     MB_ERR(ModbusQueryV2(&mb_master, modbus_t{
       .u8id = MODBUS_ADDRESS2,
@@ -235,9 +229,8 @@ static uint32_t processController2() {
       .u16reg = registers
     }));
   }
-  if ((int16_t)registers[MODBUS_HREG_COEF] != coef_offset) {
-    coef_offset = registers[MODBUS_HREG_COEF];
-    setCoefOff2(coef_offset);
+  if ((int16_t)registers[MODBUS_HREG_COEF] != speed_offset) {
+    speed_offset = registers[MODBUS_HREG_COEF];
     last_var_update_time = millis();
     dirty_vars = 1;
   }
@@ -291,7 +284,7 @@ extern "C" void loadVars(void) {
   uint16_t buf[3] = {0};
   while (AT25DMA_Read(&heeprom, EEPROM_START_ADDRESS, (uint8_t*)buf, sizeof(buf)) != AT25_OK);
   motors_target_speed = buf[VAR_SPEED];
-  coef_offset = (int16_t)buf[VAR_COEF];
+  speed_offset = (int16_t)buf[VAR_OFFSET];
   timer_starttime = buf[VAR_TIMERSTARTTIME];
   dirty_vars = 0;
 }
@@ -300,10 +293,11 @@ extern "C" void saveVars(void) {
   if (dirty_vars && ((uint16_t)millis()) - last_var_update_time >= WRITE_MINDELAY) {
     uint16_t buf[] = {
       [VAR_SPEED] = motors_target_speed,
-      [VAR_COEF] = (uint16_t)coef_offset,
+      [VAR_OFFSET] = (uint16_t)speed_offset,
       [VAR_TIMERSTARTTIME] = timer_starttime};
     if (AT25DMA_Update(&heeprom, EEPROM_START_ADDRESS, (uint8_t*)buf, sizeof(buf)) == AT25_OK)
       dirty_vars = 0;
+    last_var_update_time = millis();
   }
 }
 
@@ -312,21 +306,18 @@ extern "C" void StartCommTask(void *arg) {
   TickType_t xLastWakeTime = xTaskGetTickCount();
   loadVars();
   for (;;) {
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     xSemaphoreTake((QueueHandle_t)mb_slave.ModBusSphrHandle, portMAX_DELAY);
-    if (coils & SLAVE_COIL_MANAGED) {
-      coils &= ~SLAVE_COIL_MANAGED;
+    if (hregs[0] > 0) {
       managed_mode = 1;
-      managed_mode_checktime = millis();
-    } else if (managed_mode && millis() - managed_mode_checktime >= MANAGED_MODE_EXPIRES) {
+    } else if (managed_mode == 1) {
       managed_mode = 2;
       loadVars();
     }
-    if (managed_mode) {
-      motor_enabled = coils & SLAVE_COIL_MOTOR_ENABLED;
+    if (motors_target_speed == 1)
+      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    if (managed_mode == 1) {
       motors_target_speed = hregs[0];
-      coef_offset = hregs[1];
-      setSpeed((motor_enabled) ? motors_target_speed : 0);
+      speed_offset = hregs[1];
     }
     xSemaphoreGive((QueueHandle_t)mb_slave.ModBusSphrHandle);
     processController1();
