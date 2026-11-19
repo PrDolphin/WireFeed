@@ -1,3 +1,5 @@
+// Пистолет
+
 #include "common.h"
 #include "contpcb_lib.h"
 
@@ -11,7 +13,7 @@
 #define MOTORS_SWITCHON 4
 #define BUTTON_TIMER_STARTSTOP 5
 #define BUTTON_TIMER_RESET 6
-#define LED_PIN PWM_PIN1
+#define LED_PIN PWM_PIN2
 #define LED_SHORT 300
 #define LED_LONG 900
 #define DISPLAY_REFRESH_INTERVAL 250
